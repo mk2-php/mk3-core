@@ -4,104 +4,217 @@ namespace Mk3\Core;
 
 class Routes{
 
-    private const ROUTE_PAGES = "pages";
-    private const ROUTE_SHELL = "shell";
-    private const TYPE_RELEASE = "release";
-    private const TYPE_ERROR = "error";
+    private static $_routes = null;
 
-    private static $_routes = [];
-    private static $_scope = [];
-    private static $_middleware = [];
+    public static function add($url, $controller, $action, $option = null){
 
-    private static $_routeMode = self::ROUTE_PAGES;
-    private static $_routeType = self::TYPE_RELEASE;
-
-    /**
-     * pages
-     */
-    public static function pages(){
-        self::$_routeMode = self::ROUTE_PAGES;
-        if(empty(self::$_routes[self::$_routeMode])){
-            self::$_routes[self::$_routeMode] = [];
+        if(!self::$_routes){
+            self::$_routes = new Routes2();
         }
+
+        self::$_routes->scope("", true);
+
+        return self::$_routes->addRoute("", $url, $controller, $action, $option);
     }
 
-    /**
-     * get
-     * @param $url
-     * @param $controller
-     * @param action
-     */
-    public static function get($url, $controller, $action, $noReset = false){
-
-        if(!$noReset){
-            self::$_scope = [];
-            self::$_middleware = [];
-        }
-
-        if(empty(self::$_routes[self::$_routeMode][self::$_routeType])){
-            self::$_routes[self::$_routeMode][self::$_routeType] = [];
-        }
-
-        $str = "controller:". $controller ."|action:". $action;
-
-        if(self::$_middleware){
-            $str .= "|middleware:".self::$_middleware;
-        }
-
-        $scope = join(self::$_scope);
+    public static function get($url, $controller, $action, $option = null){
         
-        self::$_routes[self::$_routeMode][self::$_routeType][$scope. $url] = $str;
-    }
-    
-    public static function container($url, $container, $noReset = false){
-
-        if(!$noReset){
-            self::$_scope = [];
-            self::$_middleware = [];
+        if(!self::$_routes){
+            self::$_routes = new Routes2();
         }
 
-        $str = "container=". $container;
+        self::$_routes->scope("", true);
 
-        if(self::$_middleware){
-            $str .= "|middleware:".self::$_middleware;
-        }
-
-        self::$_routes[self::$_routeMode][self::$_routeType][$url] = $str;
-
-        return new RoutesAdd;
+        return self::$_routes->get($url, $controller, $action, $option);
     }
 
-    public static function middleware($middleware){
-        self::$_middleware[] = $middleware;
+    public static function post($url, $controller, $action, $option = null){
+
+        if(!self::$_routes){
+            self::$_routes = new Routes2();
+        }
+
+        self::$_routes->scope("", true);
+
+        return self::$_routes->post($url, $controller, $action, $option);
+    }
+
+    public static function put($url, $controller, $action, $option = null){
+
+        if(!self::$_routes){
+            self::$_routes = new Routes2();
+        }
+
+        self::$_routes->scope("", true);
+
+        return self::$_routes->put($url, $controller, $action, $option);
+    }
+
+    public static function delete($url, $controller, $action, $option = null){
+
+        if(!self::$_routes){
+            self::$_routes = new Routes2();
+        }
+
+        self::$_routes->scope("", true);
+
+        return self::$_routes->delete($url, $controller, $action, $option);
     }
 
     public static function scope($url){
-        self::$_scope[] = $url;
-        return new RoutesAdd;
+
+        if(!self::$_routes){
+            self::$_routes = new Routes2();
+        }
+
+        return self::$_routes->scope($url, true);
     }
-    
+
+    public static function container($url, $container){
+
+        if(!self::$_routes){
+            self::$_routes = new Routes2();
+        }
+
+        return self::$_routes->container($url, $container);
+    }
+
+    public static function middleware($middleware){
+
+        if(!self::$_routes){
+            self::$_routes = new Routes2();
+        }
+
+        return self::$_routes->container($url, $container);
+    }
+
     public static function out(){
-        return self::$_routes;
+        return self::$_routes->out();
     }
-    
 }
 
-class RoutesAdd{
+class Routes2{
 
-    public function get($url, $controller, $action){
-        Routes::get($url, $controller, $action, true);
+    private $_buffer = [];
+
+    private $_scope = null;
+
+    public function addRoute($method, $url, $controller, $action, $option = null){
+
+        $str = "controller:" . $controller."|action:" . $action;
+
+        if($option){
+            if($option["middleware"]){
+                $str .= "|middleware:". join($option["middleware"]);
+            }
+        }
+
+        if($this->_scope){
+            if($url == "/"){
+                $url = "";
+            }
+        }
+
+        $urls = $this->_scope . $url;
+        
+        if($method == "get"){
+            $urls = "get|" . $urls;
+        }
+        else if($method == "post"){
+            $urls = "post|" . $urls;
+        }
+        else if($method == "put"){
+            $urls = "put|" . $urls;
+        }
+        else if($method == "delete"){
+            $urls = "delete|" . $urls;
+        }
+
+        $this->_buffer[$urls] = $str;
+
         return $this;
     }
 
-    public function middleware($middleware){
-        Routes::middleware($middleware);
+    public function get($url, $controller, $action, $option = null){
+        return $this->addRoute("get", $url, $controller, $action, $option);
+    }
+
+    public function post($url, $controller, $action, $option = null){
+        return $this->addRoute("post", $url, $controller, $action, $option);
+    }
+
+    public function put($url, $controller, $action, $option = null){
+        return $this->addRoute("put", $url, $controller, $action, $option);
+    }
+
+    public function delete($url, $controller, $action, $option = null){
+        return $this->addRoute("delete", $url, $controller, $action, $option);
+    }
+
+    public function scope($url, $reset = false){
+
+        if($reset){
+            $this->_scope = $url;
+        }
+        else{
+            $this->_scope .= $url;
+        }
+
         return $this;
     }
 
     public function container($url, $container){
-        Routes::container($url, $container, true);
-        return $this;
+
+        $str = "container:". $container;
+
+        if($this->_scope){
+            if($url == "/"){
+                $url = "";
+            }
+        }
+
+        $urls = $this->_scope . $url;
+
+        $this->_buffer[$urls] = $str;
+        return;
     }
 
+    public function out(){
+        return $this->_buffer;
+    }
 }
+
+// sample..
+
+Routes::add("/", "main", "index");
+
+Routes::get("/page_2", "page2", "index", [
+    "middleware" => ["test1"],
+]);
+
+Routes::scope("/page_3")
+    ->get("/","page3","index")
+    ->get("/detail","page3","detail")
+    ->scope("/sub2")
+        ->get("/","page3","sub2")
+        ->get("/detial","page3","sub2_detail")
+;
+
+Routes::scope("/page_4")
+    ->get("/","page4","index")
+    ->get("/detail","page4","detail")
+;
+
+Routes::post("/page_5", "page5", "index");
+
+Routes::container("/yamada", "yamada");
+
+Routes::middleware("aaaa")
+    ->get("/page_6","page6","index")
+    ->get("/page_6/detail","page6","detail")
+;
+
+
+Debug::out(Routes::out());
+
+exit;

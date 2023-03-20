@@ -17,8 +17,10 @@ defineCheck('MK3_PATH_SEPARATE', '/');
 
 defineCheck('MK3_PATH_SEPARATE_NAMESPACE', '\\');
 
+defineCheck('MK3_PATH_NAME_CONFIG', 'config');
+
 // config path
-defineCheck('MK3_PATH_CONFIG', MK3_ROOT. MK3_PATH_SEPARATE . 'config');
+defineCheck('MK3_PATH_CONFIG', MK3_ROOT. MK3_PATH_SEPARATE . MK3_PATH_NAME_CONFIG);
 
 // app.php file path
 defineCheck('MK3_PATH_APP', MK3_ROOT. MK3_PATH_SEPARATE . 'app');

@@ -76,14 +76,11 @@ class Startor{
 	private function loadKernelV1(){
 
 		require "construct.php";
-		require "Hash.php";
 		require "Debug.php";
 		require "Config.php";
 		require "CoreBlock.php";
 		require "Routing.php";
 		require "RequestRouting.php";
-		require "ExpandClass.php";
-
 	}
 	
 	/**
@@ -233,7 +230,6 @@ class Startor{
 		}		
 
 		// load middleware (global)
-		/*
 		if(Config::exists("config.useClass.Middleware")){
 			if(Config::exists("config.middleware.".$type)){
 
@@ -257,7 +253,6 @@ class Startor{
 				}
 			}
 		}
-		*/
 		
 		$response=[];
 

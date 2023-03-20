@@ -215,7 +215,12 @@ class Routing{
 						continue;
 					}
 					else if($rpp_[0] == lcfirst(MK3_PATH_NAME_MIDDLEWARE)){
-						$middleware = explode(",", $rpp_[1]);
+						if($middleware){
+							$middleware = array_merge($middleware, explode(",", $rpp_[1]));
+						}
+						else{
+							$middleware = explode(",", $rpp_[1]);
+						}
 						continue;
 					}
 
@@ -287,7 +292,7 @@ class Routing{
 					$mode = "pages";
 				}
 
-				$containerRoutingFilePath = MK3_ROOT . MK3_PATH_SEPARATE . MK3_CONTAINER . MK3_PATH_SEPARATE . $rp_["container"] . "/routing/". $mode .".php";
+				$containerRoutingFilePath = MK3_ROOT . MK3_PATH_SEPARATE . MK3_CONTAINER . MK3_PATH_SEPARATE . $rp_["container"] . MK3_PATH_SEPARATE . MK3_PATH_NAME_CONFIG . MK3_PATH_SEPARATE . "routing_". $mode .".php";
 		
 				if(!file_exists($containerRoutingFilePath)){
 					continue;
@@ -304,10 +309,18 @@ class Routing{
 
 						$gr_["container"] = $rp_["container"];
 					
+						/*
 						if($rp_["middleware"]){
-							$gr_["middleware"] = $rp_["middleware"];
+							if(empty($gr_["middleware"])){
+								$gr_["middleware"] = [];
+							}
+
+							Debug::out($gr_["middleware"]);
+
+							//$gr_["middleware"] = array_merge($gr_["middleware"], $rp_["middleware"]);
 						}
-		
+		*/
+
 						if($url2nd == "/"){
 							$pages[$url][$method2] = $gr_;
 						}
@@ -316,10 +329,7 @@ class Routing{
 						}	
 					}
 				}
-
-
 			}
-
 		}
 
 		return $pages;
