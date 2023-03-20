@@ -35,17 +35,17 @@ class Render extends CoreBlock{
 		
 		if(!empty($this->template)){
 			if(Config::exists("config.coreBlock.useResponse")){
-				$this->Response->loadTemplate($context->template);
+				$this->Response->template($context->template);
 			}
 		}
 		else if(!empty($this->templateParent)){
 			if(Config::exists("config.coreBlock.useResponse")){
-				$this->Response->loadTemplateParent($context->templateParent);
+				$this->Response->parentTemplate($context->templateParent);
 			}
 		}
 		else{
 			if(Config::exists("config.coreBlock.useResponse")){
-				$this->Response->loadView($context->view);
+				$this->Response->view($context->view);
 			}
 		}
 

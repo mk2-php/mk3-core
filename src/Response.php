@@ -59,30 +59,28 @@ class Response{
 	 * @param &$context
 	 */
 	public function __construct(&$context){
-		$this->context=$context;
+		$this->context = $context;
 	}
 
 	/**
-	 * getCode
+	 * code
+	 * @param $code = null 
 	 */
-	public function getCode(){
-		return http_response_code();
-	}
-
-	/**
-	 * getCode
-	 * @params int $code
-	 */
-	public function setCode($code){
-		http_response_code($code);
-		return $this;
+	public function code($code = null){
+		if($code){
+			http_response_code($code);
+			return $this;
+		}
+		else{
+			return http_response_code();
+		}
 	}
 
 	/**
 	 * url
 	 * @param string $urls
 	 */
-	 public function url($urls=null){
+	 public function url($urls = null){
 
 		if(is_string($urls)){
 
@@ -147,9 +145,7 @@ class Response{
 			}
 
 			return RequestRouting::$_params["path"].$url;
-
 		}
-
 	}
 
 	/**
@@ -180,19 +176,9 @@ class Response{
 
 	/**
 	 * setData
-	 * @param string $name
-	 * @param string $value
-	 */
-	public function setData($name,$value){
-		ResponseData::set($name,$value);
-		return $this;
-	}
-
-	/**
-	 * setDatas
 	 * @param string $values
 	 */
-	public function setDatas($values){
+	public function setData($values){
 		foreach($values as $colum=>$value){
 			ResponseData::set($colum,$value);
 		}
@@ -200,11 +186,11 @@ class Response{
 	}
 
 	/**
-	 * loadTemplate
+	 * template
 	 * @param string $templateName
 	 * @param boolean $outputBufferd
 	 */
-	public function loadTemplate($templateName = null, $outputBufferd = false){
+	public function template($templateName = null, $outputBufferd = false){
 		
 		$params = RequestRouting::$_params;
 		
@@ -215,15 +201,15 @@ class Response{
 			return;
 		}
 
-		return $this->_loadTemplate($TemplatePath, $outputBufferd);
+		return $this->_template($TemplatePath, $outputBufferd);
 	}
 
 	/**
-	 * loadTemplateParent
+	 * parentTemplate
 	 * @param string $templateName
 	 * @param boolean $outputBufferd
 	 */
-	public function loadTemplateParent($templateName = null, $outputBufferd = false){
+	public function parentTemplate($templateName = null, $outputBufferd = false){
 
 		$params = RequestRouting::$_params;
 		
@@ -234,33 +220,33 @@ class Response{
 			return;
 		}
 		
-		return $this->_loadTemplate($TemplatePath, $outputBufferd);
+		return $this->_template($TemplatePath, $outputBufferd);
 	}
 
 	/**
-	 * _loadTemplate
+	 * _template
 	 * @param string $TemplatePath
 	 * @param boolean $outputBufferd
 	 */
-	private function _loadTemplate($TemplatePath, $outputBufferd){
+	private function _template($TemplatePath, $outputBufferd){
 
 		$templateEngine = Config::get("config.templateEngine");
 
 		if($templateEngine===self::TEMPLATEENGINE_SMARTY){
-			return $this->requireEngineSmarty($TemplatePath,$outputBufferd);
+			return $this->_requireEngineSmarty($TemplatePath,$outputBufferd);
 		}
 		else if($templateEngine===self::TEMPLATEENGINE_TWIG){
-			return $this->requireEngineTwig($TemplatePath,$outputBufferd);
+			return $this->_requireEngineTwig($TemplatePath,$outputBufferd);
 		}
 
-		return $this->require($TemplatePath,$outputBufferd);
+		return $this->_require($TemplatePath,$outputBufferd);
 	}
 
 	/**
-	 * loadContent
+	 * content
 	 * @param boolean $outputBufferd
 	 */
-	public function loadContent($outputBufferd = false){
+	public function content($outputBufferd = false){
 
 		$params=RequestRouting::$_params;
 
@@ -271,33 +257,25 @@ class Response{
 			$viewPath = $params["paths"]["rendering"] . "/" .MK3_PATH_NAME_VIEW. "/". $params["controller"] . "/". $params["action"] . MK3_VIEW_EXTENSION;
 		}
 
-		return $this->_loadView($viewPath, $outputBufferd);
+		return $this->_view($viewPath, $outputBufferd);
 	}
 
 	/**
-	 * loadView
+	 * view
 	 * @param string $viewName
 	 * @param boolean $outputBufferd
 	 */
-	public function loadView($viewName, $outputBufferd = false){
-/*
-		if($viewName){
-			$viewPath = $params["paths"]["rendering"] . "/" . MK3_PATH_NAME_VIEW. "/". $viewName . MK3_VIEW_EXTENSION;	
+	public function view($viewName, $outputBufferd = false){
+
+		$params = RequestRouting::$_params;
+
+		if(substr($viewName,0,1) == "/"){
+			$viewPath = $viewName;
 		}
 		else{
-			$params=RequestRouting::$_params;
-
-			if(!empty($this->context->view)){
-				$viewPath = $params["paths"]["rendering"] . "/" .MK3_PATH_NAME_VIEW. "/". $this->context->view . MK3_VIEW_EXTENSION;
-			}
-			else{
-				$viewPath = $params["paths"]["rendering"] . "/" .MK3_PATH_NAME_VIEW. "/". $params["controller"] . "/". $params["action"] . MK3_VIEW_EXTENSION;
-			}				
+			$viewPath = $params["paths"]["rendering"] . "/" .MK3_PATH_NAME_VIEW. "/". $viewName . MK3_VIEW_EXTENSION;
 		}
-*/		
-		$params=RequestRouting::$_params;
 
-		$viewPath = $params["paths"]["rendering"] . "/" .MK3_PATH_NAME_VIEW. "/". $viewName . MK3_VIEW_EXTENSION;
 		$viewPath = str_replace("//","/",$viewPath);
 
 		if(!file_exists($viewPath)){
@@ -305,15 +283,15 @@ class Response{
 			return;
 		}
 
-		return $this->_loadView($viewPath, $outputBufferd);
+		return $this->_view($viewPath, $outputBufferd);
 	}
 
 	/**
-	 * loadViewParent
+	 * parentView
 	 * @param string $viewName
 	 * @param boolean $outputBufferd
 	 */
-	public function loadViewParent($viewName, $outputBufferd=false){
+	public function parentView($viewName, $outputBufferd=false){
 
 		$viewPath = MK3_PATH_RENDERING_VIEW . "/" . $viewName . MK3_VIEW_EXTENSION;
 		$viewPath = str_replace("//","/",$viewPath);
@@ -323,35 +301,35 @@ class Response{
 			return;
 		}
 
-		return $this->_loadView($viewPath, $outputBufferd);
+		return $this->_view($viewPath, $outputBufferd);
 	}
 
 	/**
-	 * _loadView
+	 * _view
 	 * @param string $viewPath
 	 * @param boolean $outputBufferd
 	 */
-	private function _loadView($viewPath, $outputBufferd){
+	private function _view($viewPath, $outputBufferd){
 
 		$templateEngine=Config::get("config.templateEngine");
 
 		if($templateEngine === self::TEMPLATEENGINE_SMARTY){
-			return $this->requireEngineSmarty($viewPath,$outputBufferd);
+			return $this->_requireEngineSmarty($viewPath,$outputBufferd);
 		}
 		else if($templateEngine === self::TEMPLATEENGINE_TWIG){
-			return  $this->requireEngineTwig($viewPath,$outputBufferd);
+			return $this->_requireEngineTwig($viewPath,$outputBufferd);
 		}
 		else{
-			return $this->require($viewPath,$outputBufferd);
+			return $this->_require($viewPath,$outputBufferd);
 		}
 	}
 
 	/**
-	 * loadViewPart
+	 * viewPart
 	 * @param string $viewPartName
 	 * @param boolean $outputBufferd
 	 */
-	public function loadViewPart($viewPartName, $outputBufferd = false){
+	public function viewPart($viewPartName, $outputBufferd = false){
 
 		$params= RequestRouting::$_params;
 
@@ -363,15 +341,15 @@ class Response{
 			return;
 		}
 		
-		return $this->_loadViewPart($viewPartPath, $outputBufferd);
+		return $this->_viewPart($viewPartPath, $outputBufferd);
 	}
 
 	/**
-	 * loadViewPartParent
+	 * parentViewPart
 	 * @param string $viewPartName
 	 * @param boolean $outputBufferd
 	 */
-	public function loadViewPartParent($viewPartName, $outputBufferd = false){
+	public function parentViewPart($viewPartName, $outputBufferd = false){
 
 		$viewPartPath = MK3_PATH_RENDERING_VIEWPART . "/" . $viewPartName . MK3_VIEW_EXTENSION;
 		$viewPartPath = str_replace("\\","/",$viewPartPath);
@@ -381,36 +359,36 @@ class Response{
 			return;
 		}
 		
-		return $this->_loadViewPart($viewPartPath, $outputBufferd);
+		return $this->_viewPart($viewPartPath, $outputBufferd);
 
 	}
 
 	/**
-	 * _loadViewPart
+	 * _viewPart
 	 * @param string $viewPartName
 	 * @param boolean $outputBufferd
 	 */
-	private function _loadViewPart($viewPartPath ,$outputBufferd){
+	private function _viewPart($viewPartPath ,$outputBufferd){
 
 		$templateEngine = Config::get("config.templateEngine");
 
 		if($templateEngine === self::TEMPLATEENGINE_SMARTY){
-			return $this->requireEngineSmarty($viewPartPath,$outputBufferd);
+			return $this->_requireEngineSmarty($viewPartPath,$outputBufferd);
 		}
 		else if($templateEngine === self::TEMPLATEENGINE_TWIG){
-			return  $this->requireEngineTwig($viewPartPath,$outputBufferd);
+			return  $this->_requireEngineTwig($viewPartPath,$outputBufferd);
 		}
 		else{
-			return $this->require($viewPartPath,$outputBufferd);
+			return $this->_require($viewPartPath,$outputBufferd);
 		}
 	}
 
 	/**
-	 * require
+	 * _require
 	 * @param string $path
 	 * @param boolean $outputBufferd
 	 */
-	private function require($path, $outputBufferd){
+	private function _require($path, $outputBufferd){
 
 		if($outputBufferd){
 			ob_start();
@@ -424,6 +402,26 @@ class Response{
 	
 			return $contents;	
 		}
+
+	}
+
+	/**
+	 * _requireEngineSmarty
+	 * @param $loadFilePath
+	 * @param $outputBufferd
+	 */
+	private function _requireEngineSmarty($loadFilePath,$outputBufferd){
+
+
+	}
+
+	/**
+	 * _requireEngineTwig
+	 * @param $loadFilePath
+	 * @param $outputBufferd
+	 */
+	private function _requireEngineTwig($loadFilePath,$outputBufferd){
+
 
 	}
 

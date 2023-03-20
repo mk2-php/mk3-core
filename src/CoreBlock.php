@@ -22,25 +22,27 @@ class CoreBlock{
 	 */
 	public function __construct(){
 
+		/*
 		$useClass=Config::get("config.useClass");
 		foreach($useClass as $c_){
-			$this->{$c_}=new ExpandClass($c_,$this);
+			$this->{$c_} = new ExpandClass($c_,$this);
 		}
+		*/
 		
 		if(Config::exists("config.coreBlock.useRequest")){
 			// Load Reuqest Class
-			$this->Request=new Request();
+			$this->Request = new Request();
 		}
 		if(Config::exists("config.coreBlock.useResponse")){
 			// Load Response Class
-			$this->Response=new Response($this);
+			$this->Response = new Response($this);
 		}
 		if(php_sapi_name()=="cli"){
 
 			if(Config::exists("config.coreBlock.useCommand")){
 				// Set Command Class (CLI Mode Only)
 				require_once "Command.php";
-				$this->Command=new Command($this);
+				$this->Command = new Command($this);
 			}
 		}
 	}

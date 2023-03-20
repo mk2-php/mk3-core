@@ -50,35 +50,68 @@ class Request{
 		else{
 			return Routings::$_data;
 		}
-
 	}
 
 	/**
 	 * query
+	 * @param $name = null
 	 */
-	public function query(){
-		return new RequestCollection(RequestCollectionStatic::METHOD_QUERY);
+	public function query($name = null){
+
+		$query = new RequestCollection(RequestCollectionStatic::METHOD_QUERY);
+		
+		if($name){
+			return $query->get($name);
+		}
+		else{
+			return $query;
+		}
 	}
 
 	/**
 	 * post
+	 * @param $name = null
 	 */
-	public function post(){
-		return new RequestCollection(RequestCollectionStatic::METHOD_POST);
+	public function post($name = null){
+
+		$post = new RequestCollection(RequestCollectionStatic::METHOD_POST);
+
+		if($name){
+			return $post->get($name);
+		}
+		else{
+			return $post;
+		}
 	}
 
 	/**
 	 * put
 	 */
-	public function put(){
-		return new RequestCollection(RequestCollectionStatic::METHOD_PUT);
+	public function put($name = null){
+
+		$put = new RequestCollection(RequestCollectionStatic::METHOD_PUT);
+
+		if($name){
+			return $put->get($name);
+		}
+		else{
+			return $put;
+		}
 	}
 
 	/**
 	 * delete
 	 */
-	public function delete(){
-		return new RequestCollection(RequestCollectionStatic::METHOD_DELETE);
+	public function delete($name = null){
+
+		$delete = new RequestCollection(RequestCollectionStatic::METHOD_DELETE);
+
+		if($name){
+			return $delete->get($name);
+		}
+		else{
+			return $delete;
+		}
 	}
 
 }
@@ -138,7 +171,7 @@ class RequestCollectionStatic{
 	 * @param $type
 	 * @param $name
 	 */
-	public static function get($type,$name=null){
+	public static function get($type, $name=null){
 
 		if(!isset(self::$_request[$type])){
 			$mediaType=null;

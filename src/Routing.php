@@ -45,9 +45,11 @@ class Routing{
 	 */
 	public function searchCmd($commandLine){
 
-		$routingList=$this->convertRouting(self::TYPE_SHELL);
+		$routingList = $this->convertRouting(self::TYPE_SHELL);
 
-		$response=$this->searchRouting(self::TYPE_SHELL, ["root"=>$commandLine], $routingList);
+		$rootParams = $this->getRouteCLI($commandLine);
+
+		$response = $this->searchRouting(self::TYPE_SHELL, $rootParams, $routingList);
 
 		return $response;
 	}
@@ -90,10 +92,10 @@ class Routing{
 	*/
 	private function convertRouting($type){
 
-		$routings=Config::get("config.routing.".$type);
+		$routings = Config::get("config.routing.".$type);
 
-		$routings["release"] = $this->convertRoutingPageScope($routings["release"]);
-		$routings["release"] = $this->convertRoutingModules($routings["release"]);
+		$routings = $this->convertRoutingPageScope($routings);
+		$routings = $this->convertRoutingOptions($routings, $type);
 
 		return $routings;
 	}
@@ -105,64 +107,219 @@ class Routing{
 	private function convertRoutingPageScope($pages){
 
 		$buffer=[];
-		foreach($pages as $scope => $rp_){
+		foreach($pages as $url => $rp_){
 
-			if(is_array($rp_)){
-				foreach($rp_ as $url => $rpp_){
+			$urls = explode("|", $url);
 
-					if($scope == "/"){
-						$buffer[$url] = $rpp_;
-					}
-					else{
-						if($url == "/"){
-							$buffer[$scope] = $rpp_;
+			if(count($urls) == 1){
+
+				if(is_array($rp_)){
+					
+					$sub = $this->convertRoutingPageScope($rp_);
+
+					foreach($sub as $subUrl => $s_){
+						if($subUrl == "/"){
+							$subUrl = "";
 						}
-						else{
-							$buffer[$scope.$url]=$rpp_;
-						}
+						$buffer[$url . $subUrl] = $s_;
 					}
-				}	
+				}
+				else{
+
+					$buffer[$url] = [
+						"_" => $rp_,
+					];
+				}
 			}
 			else{
-				$buffer[$scope]=$rp_;
+
+				$method = $urls[0];
+				$url = $urls[1];
+
+				if(is_array($rp_)){
+					
+					$sub = $this->convertRoutingPageScope($rp_);
+
+					foreach($sub as $subUrl => $s_){
+						if($subUrl == "/"){
+							$subUrl = "";
+						}
+						
+						if(empty($buffer[$url . $subUrl])){
+							$buffer[$url . $subUrl] = [];
+						}
+
+						$buffer[$url . $subUrl][$method] = $s_["_"];
+					}
+				}
+				else{
+
+					if(empty($buffer[$url])){
+						$buffer[$url] = [];
+					}
+
+					$buffer[$url][$method] = $rp_;
+				}
 			}
 		}
+
 		return $buffer;
+	}
+	
+	/**
+	 * convertRoutingParse
+	 * @param $pages
+	 * @param $type
+	 * @param $parentRoute = null
+	 */
+	private function convertRoutingParse($pages, $type, $parentRoute = null){
+
+		foreach($pages as $url => $r_){
+
+			foreach($r_ as $method => $rp_){
+
+				$rp_ = explode("|", $rp_);
+
+				if($type == self::TYPE_SHELL){
+					$shell = null;
+				}
+				else if($type == self::TYPE_PAGES){
+					$controller = null;
+				}
+
+				$action = null;
+
+				$container = null;
+				if(!empty($parentRoute["container"])){
+					$container = $parentRoute["container"];
+				}
+
+				$middleware = null;
+				if(!empty($parentRoute["middleware"])){
+					$middleware = $parentRoute["middleware"];
+				}
+
+				foreach($rp_ as $rpp_){
+
+					$rpp_ = explode(":", $rpp_);
+
+					$rpp_[0] = trim($rpp_[0]);
+					$rpp_[1] = trim($rpp_[1]);
+
+					if($rpp_[0] == "action"){
+						$action = $rpp_[1];
+						continue;
+					}
+					else if($rpp_[0] == lcfirst(MK3_CONTAINER)){
+						$container = $rpp_[1];
+						continue;
+					}
+					else if($rpp_[0] == lcfirst(MK3_PATH_NAME_MIDDLEWARE)){
+						$middleware = explode(",", $rpp_[1]);
+						continue;
+					}
+
+					if($type == self::TYPE_SHELL){
+						if($rpp_[0] == "shell"){
+							$shell = $rpp_[1];
+						}
+					}
+					else if($type == self::TYPE_PAGES){
+						if($rpp_[0] == "controller"){
+							$controller = $rpp_[1];
+						}
+					}
+				}
+
+				$buffer = [];
+				
+				if($type == self::TYPE_SHELL){
+					$buffer["shell"] = $shell;
+				}
+				else if($type == self::TYPE_PAGES){
+					$buffer["controller"] = $controller;
+				}
+				$buffer["action"] = $action;
+				$buffer["container"] = $container;
+				$buffer["middleware"] = $middleware;
+
+				if($container){
+					$buffer["paths"] = [
+						"namespace" => MK3_PATH_SEPARATE_NAMESPACE . ucfirst(MK3_CONTAINER) . MK3_PATH_SEPARATE_NAMESPACE . ucfirst($container). MK3_PATH_SEPARATE_NAMESPACE . ucfirst(MK3_DEFNS),
+						"rendering" => MK3_ROOT. MK3_PATH_SEPARATE . MK3_CONTAINER . MK3_PATH_SEPARATE . $container. MK3_PATH_SEPARATE. MK3_PATH_NAME_RENDERING,
+					];
+				}
+				else{
+					$buffer["paths"] = [
+						"namespace" => str_replace(MK3_PATH_SEPARATE, MK3_PATH_SEPARATE_NAMESPACE, ucfirst(MK3_DEFNS)),
+						"rendering" => MK3_PATH_RENDERING,
+					];
+				}
+
+				$pages[$url][$method] = $buffer;
+			}
+
+		}
+
+		return $pages;
 	}
 
 	/**
-	* convertRoutingModules
+	* convertRoutingOptions
 	* @param Array $pages
 	*/
-	private function convertRoutingModules($pages){
+	private function convertRoutingOptions($pages, $type){
 
-		foreach($pages as $url => $rp_){
+		$pages = $this->convertRoutingParse($pages, $type);
+		
+		foreach($pages as $url => $r_){
 
-			if(strpos($rp_, MK3_CONTAINER . "=") === false){
-				continue;
-			}
+			foreach($r_ as $method => $rp_){
 
-			$moduleName = str_replace(MK3_CONTAINER . "=", "", $rp_);
-
-			$routingFilePath = MK3_ROOT . MK3_PATH_SEPARATE . MK3_CONTAINER . MK3_PATH_SEPARATE . lcfirst($moduleName) . "/routing/pages.php";
-
-			if(!file_exists($routingFilePath)){
-				unset($pages[$url]);
-				continue;
-			}
-
-			$getRouting = require($routingFilePath);
-
-			$getRouting["release"] = $this->convertRoutingPageScope($getRouting["release"]);
-
-			foreach($getRouting["release"] as $url2nd => $gr_){
-				if($url2nd == "/"){
-					$pages[$url] = MK3_CONTAINER. "=" . $moduleName . "," . $gr_;
+				if(!$rp_["container"]){
+					continue;
 				}
-				else{
-					$pages[$url . $url2nd] = MK3_CONTAINER ."=" . $moduleName . "," .$gr_;
+
+				if($type == self::TYPE_SHELL){
+					$mode = "shell";
 				}
+				else if($type == self::TYPE_PAGES){
+					$mode = "pages";
+				}
+
+				$containerRoutingFilePath = MK3_ROOT . MK3_PATH_SEPARATE . MK3_CONTAINER . MK3_PATH_SEPARATE . $rp_["container"] . "/routing/". $mode .".php";
+		
+				if(!file_exists($containerRoutingFilePath)){
+					continue;
+				}
+	
+				$getRouting = require($containerRoutingFilePath);
+	
+				$getRouting = $this->convertRoutingPageScope($getRouting);
+				$getRouting = $this->convertRoutingParse($getRouting, $type, $rp_);
+	
+				foreach($getRouting as $url2nd => $g__){
+	
+					foreach($g__ as $method2 => $gr_){
+
+						$gr_["container"] = $rp_["container"];
+					
+						if($rp_["middleware"]){
+							$gr_["middleware"] = $rp_["middleware"];
+						}
+		
+						if($url2nd == "/"){
+							$pages[$url][$method2] = $gr_;
+						}
+						else{
+							$pages[$url . $url2nd][$method2] = $gr_;
+						}	
+					}
+				}
+
+
 			}
+
 		}
 
 		return $pages;
@@ -205,13 +362,31 @@ class Routing{
 			'host'=>$host,
 			"phpSelf"=>$phpself,
 			'protocol'=>$protocol,
-			'method'=>$_SERVER["REQUEST_METHOD"],
-			'port'=>$_SERVER['SERVER_PORT'],
-			'remoteIp'=>$remoteIp,
+			'method' => $_SERVER["REQUEST_METHOD"],
+			'port' => $_SERVER['SERVER_PORT'],
+			'remoteIp' => $remoteIp,
+			"paths"=>[
+				"namespace" => MK3_DEFNS,
+				"rendering" => MK3_PATH_RENDERING,
+			]
 		];
 
 		return $response;
+	}
+	/**
+	* getRouteCLI
+	*/
+	private function getRouteCLI($commandLine){
 
+		$response=[
+			'root'=>$commandLine,
+			"paths"=>[
+				"namespace" => MK3_DEFNS,
+				"rendering" => MK3_PATH_RENDERING,
+			]
+		];
+
+		return $response;
 	}
 
 	/**
@@ -233,10 +408,10 @@ class Routing{
 		$passParams=[];
 		$matrixA=[];
 		$matrixB=[];
-		if(!empty($routingList["release"])){
-			foreach($routingList["release"] as $url=>$route){
+		if(!empty($routingList)){
+			foreach($routingList as $url => $route){
 
-				$url0=str_replace("*","{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}",$url);
+				$url0 = str_replace("*","{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}",$url);
 
 				$urls=explode("/",$url0);
 				array_shift($urls);
@@ -317,7 +492,7 @@ class Routing{
 		$confirmPassParams=null;
 		foreach($matrixA as $url=>$ma_){
 			if($ma_ && $ma_==$matrixB[$url]){
-				$output=$routingList["release"][$url];
+				$output=$routingList[$url];
 				if(!empty($passParams[$url])){
 					$confirmPassParams=$passParams[$url];
 				}
@@ -327,36 +502,32 @@ class Routing{
 			}
 		}
 
+		$output2 = null;
+
 		if(is_array($output)){
-			$output2=null;
 
-			$method=strtolower($rootParams["method"]);
+			if($type == self::TYPE_PAGES){
 
-			if(!empty($output[$method])){
-				$output2=$output[$method];
+				foreach($output as $method => $o_){
+					if($method == "_"){
+						$output2 = $o_;
+					}
+					else{
+						if(strtolower($rootParams["method"]) == strtolower($method)){
+							$output2 = $o_;
+							break;
+						}	
+					}
+				}
 			}
-			else{
-				$output2=$output;
-			}
-
-			if($output2){
-				$output=$output2;
-			}
-			else{
-				$output=null;
+			else if($type == self::TYPE_SHELL){
+				$output2 = $output["_"];
 			}
 		}
-
-		if($output){
-			
-			$output = $this->convertResponse($type,$output,$confirmPassParams);
-
-			if(!$output){
-				return;
-			}
-
-			$output=array_merge($output,$rootParams);
-			return $output;	
+		
+		if($output2){
+			$output2 = array_merge($output2, $rootParams);
+			return $output2;	
 		}
 		else{	
 			return $rootParams;	
@@ -373,10 +544,10 @@ class Routing{
 	 */
 	private function getRouteErrorClass($type, $defaultRootParam, $exception, $rootParams, $routingList){
 
-		$errorExceptionName=get_class($exception);
+		$errorExceptionName = get_class($exception);
 
 		if(!empty($routingList["error"])){
-			$errorList=$routingList["error"];
+			$errorList = $routingList["error"];
 		}
 
 		if(!empty($routingList["errorScope"])){
@@ -412,93 +583,20 @@ class Routing{
 		}
 
 		if(!empty($errorRoute)){
-			$confirmErrorRoute=$errorRoute['Exception'];
+
+			$confirmErrorRoute = $errorRoute['Exception'];
+
 			if(!empty($errorRoute[$errorExceptionName])){
 				$confirmErrorRoute=$errorRoute[$errorExceptionName];
 			}
 	
-			$confirmErrorRoute=$this->convertResponse($type,$confirmErrorRoute);
-
-			foreach($defaultRootParam as $key=>$val){
-				$confirmErrorRoute[$key]=$val;
+			if($defaultRootParam){
+				foreach($defaultRootParam as $key => $val){
+					$confirmErrorRoute[$key] = $val;
+				}	
 			}
+
 			return $confirmErrorRoute;
-	
 		}
-
-	}
-
-	/**
-	 * convertResponse
-	 * @param $type
-	 * @param $result
-	 * @param $passParams = null
-	 */
-	private function convertResponse($type,$result,$passParams=null){
-
-		if(is_array($result)){
-			if(!empty($result["middleware"])){
-				$middleware = $result["middleware"];
-			}
-			if(!empty($result[0])){
-				$result = $result[0];
-			}
-		}
-
-		if(is_array($result)){
-			return null;
-		}
-
-		$module = null;
-		if(strpos($result, MK3_CONTAINER . "=") > -1){
-			$module = substr($result, strpos($result, MK3_CONTAINER . "=") + strlen(MK3_CONTAINER . "="));
-			$module = substr($module, 0, strpos($module,","));
-			$result = str_replace(MK3_CONTAINER . "=" . $module. ",","",$result);
-		}
-
-		$result = explode("@",$result);
-
-		if($type==self::TYPE_PAGES){
-			$classType="controller";
-		}
-		else if($type==self::TYPE_SHELL){
-			$classType="shell";
-		}
-
-		$output=[
-			$classType => $result[0],
-			"action" => $result[1],
-		];
-
-		$output["request"]=$passParams;
-
-		if(!empty($middleware)){
-			$output["middleware"]=$middleware;
-		}
-		
-		if(strpos($result[0], MK3_PATH_SEPARATE_NAMESPACE . ucfirst(MK3_CONTAINER)) > -1){
-			// get module name
-			$moduleName=explode(MK3_PATH_SEPARATE_NAMESPACE, $result[0]);
-			$output["module"]=$moduleName[2];
-		}
-
-		if($module){
-
-			$output["paths"] = [
-				"namespace" => MK3_PATH_SEPARATE_NAMESPACE . ucfirst(MK3_CONTAINER) . MK3_PATH_SEPARATE_NAMESPACE . ucfirst($module). MK3_PATH_SEPARATE_NAMESPACE . ucfirst(MK3_DEFNS),
-				"rendering" => MK3_ROOT. MK3_PATH_SEPARATE . MK3_CONTAINER . MK3_PATH_SEPARATE . $module. MK3_PATH_SEPARATE. MK3_PATH_NAME_RENDERING,
-			];
-		}
-		else{
-
-			$output["paths"] = [
-				"namespace" => str_replace(MK3_PATH_SEPARATE, MK3_PATH_SEPARATE_NAMESPACE, ucfirst(MK3_DEFNS)),
-				"rendering" => MK3_PATH_RENDERING,
-			];
-		}
-
-		return $output;
-	}
-
-	
+	}	
 }

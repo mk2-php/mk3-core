@@ -105,25 +105,26 @@ class Startor{
 	 */
 	private function loadConfig(){
 
-		$configPath=MK3_PATH_CONFIG."/app.php";
+		$configPath = MK3_PATH_CONFIG."/app.php";
 		if(!file_exists($configPath)){
 			throw new Exception('System configuration file "app.php" not found.'."\n".'Check if the file exists with the path below.'."\n".'Path : '.$configPath."\n");
 		}
 
-		$config=require($configPath);
+		$config = require($configPath);
+
+		Config::set("config", $config);
 
 		if(!empty($config["require"])){
 			foreach($config["require"] as $cr_){
 				if(!file_exists(MK3_PATH_CONFIG."/".$cr_.".php")){
 					continue;
 				}
-				$requireName=pathinfo($cr_,PATHINFO_FILENAME);
-				$buff=require(MK3_PATH_CONFIG."/".$cr_.".php");
-				Config::set($cr_,$buff);
+				$requireName = pathinfo($cr_,PATHINFO_FILENAME);
+				$buff = require(MK3_PATH_CONFIG."/".$cr_.".php");
+				Config::set($cr_, $buff);
 			}
 		}
 
-		Config::set("config",$config);
 		
 	}
 
@@ -167,23 +168,25 @@ class Startor{
 		if(empty($argv[0])){
 			$argv[0]="top";
 		}
-		$mainCommands=explode(":",$argv[0]);
-		$mainCommand=$mainCommands[0];
-		if($mainCommand!="command"){
+
+		$mainCommands = explode(" ",$argv[0]);
+		$mainCommand = $mainCommands[0];
+
+		if($mainCommand != "command"){
 			require "Mk3Shell/Mk3shell.php";
 			new Mk3shell($argv);
 			exit;
 		}
 
-		$cmdUrl=$mainCommands[1];
+		$cmdUrl = $argv[1];
+
 		$this->routeParam = $this->Routing->searchCmd($cmdUrl);
 
+		RequestRouting::$_params = $this->routeParam;	
+
 		if(empty($this->routeParam["shell"])){
-			http_response_code(404);
 			throw new \Exception('The specified prepared command was not found.');			
 		}
-
-		RequestRouting::$_params = $this->routeParam;			
 
 	}
 
@@ -194,24 +197,13 @@ class Startor{
 
 		$this->routeParam = $this->Routing->search();
 
-		if(Config::exists("config.defaultRouting.controller")){
-
-			if($this->routeParam["root"]=="/"){
-				if(empty($this->routeParam["controller"])){
-					$this->routeParam["controller"]=Config::get("config.defaultRouting.controller");
-				}
-				if(empty($this->routeParam["action"])){
-					$this->routeParam["action"]=Config::get("config.defaultRouting.action");	
-				}
-			}
-		}
+		RequestRouting::$_params = $this->routeParam;
 
 		if(empty($this->routeParam["controller"])){
 			http_response_code(404);
 			throw new \Exception('The specified prepared page was not found.');			
 		}
 
-		RequestRouting::$_params=$this->routeParam;
 	}
 
 	/**
@@ -241,6 +233,7 @@ class Startor{
 		}		
 
 		// load middleware (global)
+		/*
 		if(Config::exists("config.useClass.Middleware")){
 			if(Config::exists("config.middleware.".$type)){
 
@@ -248,10 +241,10 @@ class Startor{
 
 				foreach($mList as $m_){
 					if($m_[0] == MK3_PATH_SEPARATE_NAMESPACE){
-						$middlewareName=ucfirst($m_)."Middleware";
+						$middlewareName = ucfirst($m_)."Middleware";
 					}
 					else{
-						$middlewareName=ucfirst(MK3_DEFNS_MIDDLEWARE)  .MK3_PATH_SEPARATE_NAMESPACE . ucfirst($m_)."Middleware";
+						$middlewareName = ucfirst(MK3_DEFNS_MIDDLEWARE)  .MK3_PATH_SEPARATE_NAMESPACE . ucfirst($m_)."Middleware";
 					}
 
 					$mbuff=new $middlewareName;
@@ -264,27 +257,25 @@ class Startor{
 				}
 			}
 		}
-
+		*/
+		
 		$response=[];
 
 		// load middleware (local)
 		if(!empty($this->routeParam["middleware"])){
+
 			foreach($this->routeParam["middleware"] as $m_){
-				if($m_[0] == MK3_PATH_SEPARATE_NAMESPACE){
-					$middlewareName=ucfirst($m_)."Middleware";
-				}
-				else{
-					$middlewareName=ucfirst(MK3_DEFNS_MIDDLEWARE) . MK3_PATH_SEPARATE_NAMESPACE . ucfirst($m_)."Middleware";
-				}
 
-				$mbuff=new $middlewareName;
+				$middlewareName = $this->routeParam["paths"]["namespace"] . "\\" . MK3_PATH_NAME_MIDDLEWARE . "\\" .ucfirst($m_) . MK3_PATH_NAME_MIDDLEWARE;
 
-				if(method_exists($mbuff,"handleBefore")){
+				$mbuff = new $middlewareName;
+
+				if(method_exists($mbuff, "handleBefore")){
 					$buffer = $mbuff->handleBefore();
-					$response[$m_]=$buffer;
+					$response[$m_] = $buffer;
 				}
 
-				$this->middlewares[]=$mbuff;
+				$this->middlewares[] = $mbuff;
 			}
 		}
 
@@ -318,7 +309,6 @@ class Startor{
 		;
 
 		if(!class_exists($controllerName)){
-			http_response_code(404);
 			throw new \Exception('Missing "'.$controllerName.'" class not found.');
 		}
 
@@ -329,7 +319,6 @@ class Startor{
 		$action=$this->routeParam["action"];
 
 		if(!method_exists($controller,$action)){
-			http_response_code(404);
 			throw new \Exception('"'.$action.'" action does not exist in "'.$controllerName.'" class.');
 		}
 
@@ -371,13 +360,10 @@ class Startor{
 	 */
 	public function setShell(){
 
-		if($this->routeParam["shell"][0] == MK3_PATH_SEPARATE_NAMESPACE){
-			$this->routeParam["shell"] = substr($this->routeParam["shell"],1);
-			$shellName = ucfirst($this->routeParam["shell"])."Shell";
-		}
-		else{
-			$shellName = ucfirst(MK3_DEFNS_SHELL) . MK3_PATH_SEPARATE_NAMESPACE . ucfirst($this->routeParam["shell"])."Shell";
-		}
+		$shellName = $this->routeParam["paths"]["namespace"] . MK3_PATH_SEPARATE_NAMESPACE. 
+			MK3_PATH_NAME_SHELL . MK3_PATH_SEPARATE_NAMESPACE. 
+			ucfirst($this->routeParam["shell"]). MK3_PATH_NAME_SHELL
+		;
 
 		if(!class_exists($shellName)){
 			http_response_code(404);
@@ -397,7 +383,7 @@ class Startor{
 			$shell->beforeResponse = $shell->handleBefore();
 		}
 
-		if($this->routeParam["request"]){
+		if(!empty($this->routeParam["request"])){
 			$output=$shell->{$action}(...$this->routeParam["request"]);
 		}
 		else{
@@ -429,38 +415,15 @@ class Startor{
 	 */
 	private function errorCLI($exception){
 
-		$errorRoute = $this->Routing->searchErrorClassCmd($exception, $this->routeParam);
+		$exceptionPath = $this->routeParam["paths"]["namespace"] .MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_EXCEPTION . MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_EXCEPTION_CLI;
 
-		try{
-
-			$shellName  =ucfirst(MK3_DEFNS_SHELL) . MK3_PATH_SEPARATE_NAMESPACE . ucfirst($errorRoute["shell"])."Shell";
-
-			if(!class_exists($shellName)){
-				throw new \Exception('Missing "'.$shellName.'" class not found.');
-			}
-
-			$shell=new $shellName();
-
-			if(method_exists($shell,"handleBefore")){
-				$shell->beforeResponse = $shell->handleBefore($exception);
-			}
-
-			$output = $shell->{$errorRoute["action"]}($exception);
-
-			if(method_exists($shell,"handleAfter")){
-				$shell->handleAfter($output,$exception);
-			}
-
-		}catch(\Exception $e){
-			echo "\n";
-			echo "\033[0;31m";
-			echo $exception."\n";
-			echo "\n";
-			echo $e."\n";
-			echo "\033[0m";
-			echo "\n";
+		if(!class_exists($exceptionPath)){
+			throw new \Exception('Missing Exception class not found.');
 		}
 
+		$exp = new $exceptionPath;
+
+		$exp->handle($exception);
 	}
 
 	/**
@@ -469,52 +432,17 @@ class Startor{
 	 */
 	private function errorWeb($exception){
 
-		if(empty($this->Routing)){
-			echo $exception;
-			return;
+		$exceptionPath = $this->routeParam["paths"]["namespace"] .MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_EXCEPTION . MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_EXCEPTION;
+		
+		if(!class_exists($exceptionPath)){
+			throw new \Exception('Missing Exception class not found.');
 		}
 
-		$errorRoute = $this->Routing->searchErrorClass($exception, $this->routeParam);
+		$exp = new $exceptionPath;
 
-		try{
+		$exp->handle($exception);
 
-			if(!$errorRoute){
-				throw new \Exception('Missing Error Exception class not found.');
-			}
-						
-			$controllerName = $errorRoute["paths"]["namespace"] . MK3_PATH_SEPARATE_NAMESPACE . 
-				MK3_PATH_NAME_CONTROLLER . MK3_PATH_SEPARATE_NAMESPACE . 
-				ucfirst($errorRoute["controller"]). MK3_PATH_NAME_CONTROLLER
-			;
-
-			if(!class_exists($controllerName)){
-				throw new \Exception('Missing "'.$controllerName.'" class not found.');
-			}
-
-			$controller=new $controllerName();
-
-			if(method_exists($controller,"handleBefore")){
-				$controller->beforeResponse = $controller->handleBefore($exception);
-			}
-
-			$output=$controller->{$errorRoute["action"]}($exception);
-			
-			RequestRouting::$_params = $errorRoute;
-
-			if(!empty($controller->autoRender)){
-				$controller->_rendering();
-			}
-
-			if(method_exists($controller,"handleAfter")){
-				$controller->handleAfter($output,$exception);
-			}
-
-		}catch(\Exception $e){
-			echo "<pre>";
-			echo $e;
-			echo "</pre>";
-		}
-
+		$exp->_rendering();
 	}
 
 }

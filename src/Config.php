@@ -50,7 +50,7 @@ class Config{
 		foreach($names as $ind=>$n_){
 
 			if(!empty($getData[$n_])){
-				$getData=$getData[$n_];
+				$getData = $getData[$n_];
 			}
 			else if(in_array($n_,$getData)){
 				return true;

@@ -24,10 +24,17 @@ class Debug{
 		$trace=debug_backtrace();
 		$firstTrace=$trace[0];
 
-		echo "<pre>";
-		echo "<strong>Debug:".$firstTrace["file"]."(".$firstTrace["line"].")</strong><br>";
-		print_r($value);
-		echo "</pre>";
+		if(php_sapi_name() == "cli"){
+			echo "\n";
+			echo "[Debug]: ".$firstTrace["file"]." (".$firstTrace["line"].")";
+			print_r($value);
+		}
+		else{
+			echo "<pre>";
+			echo "<strong>Debug:".$firstTrace["file"]."(".$firstTrace["line"].")</strong><br>";
+			print_r($value);
+			echo "</pre>";	
+		}
 	}
 
 }
