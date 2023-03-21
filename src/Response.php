@@ -384,6 +384,51 @@ class Response{
 	}
 
 	/**
+	 * hookReceive
+	 * @param $hookName
+	 * @param $hookMethod
+	 * @param $aregments = null
+	 */
+	public function hookReceive($hookName, $hookMethod, $aregments = null){
+
+		$containerPath =  MK3_ROOT . MK3_PATH_SEPARATE. MK3_CONTAINER . MK3_PATH_SEPARATE ."*";
+
+		$getContainer = glob($containerPath);
+
+		foreach($getContainer as $gc_){
+
+			$hookPath = $gc_ . MK3_PATH_SEPARATE . MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_HOOK . MK3_PATH_SEPARATE . ucfirst($hookName) . MK3_PATH_NAME_HOOK . ".php";
+
+			if(!file_exists($hookPath)){
+				continue;
+			}
+
+			require $hookPath;
+
+			$hookClassName = MK3_PATH_SEPARATE_NAMESPACE. str_replace(MK3_PATH_SEPARATE, MK3_PATH_SEPARATE_NAMESPACE, str_replace(MK3_ROOT . MK3_PATH_SEPARATE, "", $gc_)) . MK3_PATH_SEPARATE_NAMESPACE . MK3_DEFNS . MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_HOOK . MK3_PATH_SEPARATE_NAMESPACE . ucfirst($hookName) . MK3_PATH_NAME_HOOK;
+
+			if(!class_exists($hookClassName)){
+				continue;
+			}
+
+			$hook = new $hookClassName();
+
+			if(!method_exists($hook, $hookMethod)){
+				continue;
+			}
+
+			if($aregments){
+				$hookRes = $hook->{$hookMethod}(...$aregments);
+			}
+			else{
+				$hookRes = $hook->{$hookMethod}();
+			}
+
+			return $hookRes;
+		}
+	}
+
+	/**
 	 * _require
 	 * @param string $path
 	 * @param boolean $outputBufferd

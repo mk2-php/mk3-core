@@ -67,11 +67,11 @@ defineCheck('MK3_PATH_NAME_SHELL', 'Shell');
 
 defineCheck('MK3_PATH_NAME_MIDDLEWARE', 'Middleware');
 
-defineCheck('MK3_PATH_NAME_ELCLASS', 'ElClass');
-
 defineCheck('MK3_PATH_NAME_EXCEPTION', 'Exception');
 
 defineCheck('MK3_PATH_NAME_EXCEPTION_CLI', 'ExceptionCLI');
+
+defineCheck('MK3_PATH_NAME_HOOK', 'Hook');
 
 // defineCheck('MK3_DEFNS_CONTROLLER', MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_CONTROLLER);
 
