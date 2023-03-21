@@ -39,6 +39,7 @@ class Mk3shell{
                 require_once "Mk3shellMakeController.php";
                 new Mk3shellMakeController($argv);
             }
+            /*
             else if($type=="model"){
                 require_once "Mk3shellMakeModel.php";
                 new Mk3shellMakeModel($argv);
@@ -71,6 +72,7 @@ class Mk3shell{
                 require_once "Mk3shellMakeShell.php";
                 new Mk3shellMakeShell($argv);
             }
+            */
         }
         else if($main=="add"){
 

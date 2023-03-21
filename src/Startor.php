@@ -3,8 +3,11 @@
  * ===================================================
  * 
  * PHP FW - Mk3 -
+ * Startor.php
  * 
  * Object class for initial operation.
+ * A class for starting the framework.
+ * Starting from this class, the web system is constructed.
  * 
  * URL : 
  * Copylight : Masato-Nakatsuji 2023.
@@ -39,6 +42,9 @@ class Startor{
 	private const MODE_CLI = "cli";
 	private $middlewares = [];
 
+	/**
+	 * __construct
+	 */
 	public function __construct(){
 
 		try{
