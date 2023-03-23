@@ -536,7 +536,7 @@ class Routing{
 		}
 		
 		if($output2){
-			$output2 = array_merge($output2, $rootParams);
+			$output2 = array_merge($rootParams, $output2);
 			return $output2;	
 		}
 		else{	
