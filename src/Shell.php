@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * Shell
  * 
  * Object class for initial operation.
@@ -13,6 +13,6 @@
  * ===================================================
  */
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 class Shell extends CoreBlock{}

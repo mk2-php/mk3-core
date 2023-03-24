@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * CoreBlock
  * 
  * Element class base object class.
@@ -13,7 +13,7 @@
  * ===================================================
  */
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 class CoreBlock{
 

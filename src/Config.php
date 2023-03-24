@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * 
  * Initial setting class..
  * 
@@ -12,7 +12,7 @@
  * ===================================================
  */
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 class Config{
 
@@ -83,8 +83,8 @@ class Config{
 	 * @return require
 	 */
 	public static function require($pathName){
-		if(file_exists(MK3_PATH_CONFIG."/".$pathName)){
-			return require MK3_PATH_CONFIG."/".$pathName;
+		if(file_exists(RLD_PATH_CONFIG."/".$pathName)){
+			return require RLD_PATH_CONFIG."/".$pathName;
 		}
 	}
 }

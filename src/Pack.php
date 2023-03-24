@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * Pack
  * 
  * Pack class base file.
@@ -13,6 +13,6 @@
  * ===================================================
  */
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 class Pack extends CoreBlock{}

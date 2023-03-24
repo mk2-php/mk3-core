@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * 
  * Element class base object class.
  * 
@@ -12,7 +12,7 @@
  * ===================================================
  */
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 class Debug{
 
@@ -73,7 +73,7 @@ class Debug{
 	 * useMemory
 	 */
 	public static function useMemory(){
-		echo memory_get_peak_usage() - MK3_BEGIN_MEMORY_USAGE;
+		echo memory_get_peak_usage() - RLD_BEGIN_MEMORY_USAGE;
 	}
 
 }

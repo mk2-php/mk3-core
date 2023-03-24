@@ -1,5 +1,5 @@
 <?php
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 class ExceptionCLI extends Shell{}

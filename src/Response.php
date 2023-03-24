@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * ResponseData
  * 
  * Object class for initial operation.
@@ -13,7 +13,7 @@
  * ===================================================
  */
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 use Exception;
 
@@ -194,7 +194,7 @@ class Response{
 		
 		$params = RequestRouting::$_params;
 		
-		$TemplatePath = $params["paths"]["rendering"] . "/" . MK3_PATH_NAME_TEMPLATE . "/" . $templateName . MK3_VIEW_EXTENSION;
+		$TemplatePath = $params["paths"]["rendering"] . "/" . RLD_PATH_NAME_TEMPLATE . "/" . $templateName . RLD_VIEW_EXTENSION;
 
 		if(!file_exists($TemplatePath)){
 			echo "<pre>Template file not found. \n Path : '".$TemplatePath."'\n</pre>";
@@ -213,7 +213,7 @@ class Response{
 
 		$params = RequestRouting::$_params;
 		
-		$TemplatePath = MK3_PATH_RENDERING_TEMPLATE . "/" . $templateName . MK3_VIEW_EXTENSION;
+		$TemplatePath = RLD_PATH_RENDERING_TEMPLATE . "/" . $templateName . RLD_VIEW_EXTENSION;
 
 		if(!file_exists($TemplatePath)){
 			echo "<pre>Template file not found. \n Path : '".$TemplatePath."'\n</pre>";
@@ -251,10 +251,10 @@ class Response{
 		$params=RequestRouting::$_params;
 
 		if(!empty($this->context->view)){
-			$viewPath = $params["paths"]["rendering"] . "/" .MK3_PATH_NAME_VIEW. "/". $this->context->view . MK3_VIEW_EXTENSION;
+			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". $this->context->view . RLD_VIEW_EXTENSION;
 		}
 		else{
-			$viewPath = $params["paths"]["rendering"] . "/" .MK3_PATH_NAME_VIEW. "/". $params["controller"] . "/". $params["action"] . MK3_VIEW_EXTENSION;
+			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". $params["controller"] . "/". $params["action"] . RLD_VIEW_EXTENSION;
 		}
 
 		return $this->_view($viewPath, $outputBufferd);
@@ -273,7 +273,7 @@ class Response{
 			$viewPath = $viewName;
 		}
 		else{
-			$viewPath = $params["paths"]["rendering"] . "/" .MK3_PATH_NAME_VIEW. "/". $viewName . MK3_VIEW_EXTENSION;
+			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". $viewName . RLD_VIEW_EXTENSION;
 		}
 
 		$viewPath = str_replace("//","/",$viewPath);
@@ -293,7 +293,7 @@ class Response{
 	 */
 	public function parentView($viewName, $outputBufferd=false){
 
-		$viewPath = MK3_PATH_RENDERING_VIEW . "/" . $viewName . MK3_VIEW_EXTENSION;
+		$viewPath = RLD_PATH_RENDERING_VIEW . "/" . $viewName . RLD_VIEW_EXTENSION;
 		$viewPath = str_replace("//","/",$viewPath);
 
 		if(!file_exists($viewPath)){
@@ -333,7 +333,7 @@ class Response{
 
 		$params= RequestRouting::$_params;
 
-		$viewPartPath = $params["paths"]["rendering"] . "/" . MK3_PATH_NAME_VIEWPART . "/" . $viewPartName . MK3_VIEW_EXTENSION;
+		$viewPartPath = $params["paths"]["rendering"] . "/" . RLD_PATH_NAME_VIEWPART . "/" . $viewPartName . RLD_VIEW_EXTENSION;
 		$viewPartPath = str_replace("\\","/",$viewPartPath);
 
 		if(!file_exists($viewPartPath)){
@@ -351,7 +351,7 @@ class Response{
 	 */
 	public function parentViewPart($viewPartName, $outputBufferd = false){
 
-		$viewPartPath = MK3_PATH_RENDERING_VIEWPART . "/" . $viewPartName . MK3_VIEW_EXTENSION;
+		$viewPartPath = RLD_PATH_RENDERING_VIEWPART . "/" . $viewPartName . RLD_VIEW_EXTENSION;
 		$viewPartPath = str_replace("\\","/",$viewPartPath);
 
 		if(!file_exists($viewPartPath)){
@@ -391,13 +391,13 @@ class Response{
 	 */
 	public function hookReceive($hookName, $hookMethod, $aregments = null){
 
-		$containerPath =  MK3_ROOT . MK3_PATH_SEPARATE. MK3_CONTAINER . MK3_PATH_SEPARATE ."*";
+		$containerPath =  RLD_ROOT . RLD_PATH_SEPARATE. RLD_CONTAINER . RLD_PATH_SEPARATE ."*";
 
 		$getContainer = glob($containerPath);
 
 		foreach($getContainer as $gc_){
 
-			$hookPath = $gc_ . MK3_PATH_SEPARATE . MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_HOOK . MK3_PATH_SEPARATE . ucfirst($hookName) . MK3_PATH_NAME_HOOK . ".php";
+			$hookPath = $gc_ . RLD_PATH_SEPARATE . RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_HOOK . RLD_PATH_SEPARATE . ucfirst($hookName) . RLD_PATH_NAME_HOOK . ".php";
 
 			if(!file_exists($hookPath)){
 				continue;
@@ -405,7 +405,7 @@ class Response{
 
 			require $hookPath;
 
-			$hookClassName = MK3_PATH_SEPARATE_NAMESPACE. str_replace(MK3_PATH_SEPARATE, MK3_PATH_SEPARATE_NAMESPACE, str_replace(MK3_ROOT . MK3_PATH_SEPARATE, "", $gc_)) . MK3_PATH_SEPARATE_NAMESPACE . MK3_DEFNS . MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_HOOK . MK3_PATH_SEPARATE_NAMESPACE . ucfirst($hookName) . MK3_PATH_NAME_HOOK;
+			$hookClassName = RLD_PATH_SEPARATE_NAMESPACE. str_replace(RLD_PATH_SEPARATE, RLD_PATH_SEPARATE_NAMESPACE, str_replace(RLD_ROOT . RLD_PATH_SEPARATE, "", $gc_)) . RLD_PATH_SEPARATE_NAMESPACE . RLD_DEFNS . RLD_PATH_SEPARATE_NAMESPACE . RLD_PATH_NAME_HOOK . RLD_PATH_SEPARATE_NAMESPACE . ucfirst($hookName) . RLD_PATH_NAME_HOOK;
 
 			if(!class_exists($hookClassName)){
 				continue;

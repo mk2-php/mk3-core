@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * Startor.php
  * 
  * Object class for initial operation.
@@ -15,21 +15,21 @@
  * ===================================================
  */
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 use Exception;
 use Error;
 
-define("MK3_BEGIN_MEMORY_USAGE", memory_get_peak_usage());
+define("RLD_BEGIN_MEMORY_USAGE", memory_get_peak_usage());
 
 // autoload register
 spl_autoload_register(function($className){
 
-	if(count(explode(MK3_PATH_SEPARATE_NAMESPACE, $className)) > 1){
+	if(count(explode(RLD_PATH_SEPARATE_NAMESPACE, $className)) > 1){
 		$className = lcfirst($className);
 	}
 
-	$classPath = MK3_ROOT. MK3_PATH_SEPARATE . str_replace( MK3_PATH_SEPARATE_NAMESPACE , MK3_PATH_SEPARATE , $className ) . ".php";
+	$classPath = RLD_ROOT. RLD_PATH_SEPARATE . str_replace( RLD_PATH_SEPARATE_NAMESPACE , RLD_PATH_SEPARATE , $className ) . ".php";
 
 	if(file_exists($classPath)){
 		require_once $classPath;
@@ -108,7 +108,7 @@ class Startor{
 	 */
 	private function loadConfig(){
 
-		$configPath = MK3_PATH_CONFIG."/app.php";
+		$configPath = RLD_PATH_CONFIG."/app.php";
 		if(!file_exists($configPath)){
 			throw new Exception('System configuration file "app.php" not found.'."\n".'Check if the file exists with the path below.'."\n".'Path : '.$configPath."\n");
 		}
@@ -119,11 +119,11 @@ class Startor{
 
 		if(!empty($config["require"])){
 			foreach($config["require"] as $cr_){
-				if(!file_exists(MK3_PATH_CONFIG."/".$cr_.".php")){
+				if(!file_exists(RLD_PATH_CONFIG."/".$cr_.".php")){
 					continue;
 				}
 				$requireName = pathinfo($cr_,PATHINFO_FILENAME);
-				$buff = require(MK3_PATH_CONFIG."/".$cr_.".php");
+				$buff = require(RLD_PATH_CONFIG."/".$cr_.".php");
 				Config::set($cr_, $buff);
 			}
 		}
@@ -176,8 +176,8 @@ class Startor{
 		$mainCommand = $mainCommands[0];
 
 		if($mainCommand != "command"){
-			require "Mk3Shell/Mk3shell.php";
-			new Mk3shell($argv);
+			require "Console/RldShell.php";
+			new RldShell($argv);
 			exit;
 		}
 
@@ -242,11 +242,11 @@ class Startor{
 				$mList=Config::get("config.middleware.".$type);
 
 				foreach($mList as $m_){
-					if($m_[0] == MK3_PATH_SEPARATE_NAMESPACE){
+					if($m_[0] == RLD_PATH_SEPARATE_NAMESPACE){
 						$middlewareName = ucfirst($m_)."Middleware";
 					}
 					else{
-						$middlewareName = ucfirst(MK3_DEFNS_MIDDLEWARE)  .MK3_PATH_SEPARATE_NAMESPACE . ucfirst($m_)."Middleware";
+						$middlewareName = ucfirst(RLD_DEFNS_MIDDLEWARE)  .RLD_PATH_SEPARATE_NAMESPACE . ucfirst($m_)."Middleware";
 					}
 
 					$mbuff=new $middlewareName;
@@ -267,7 +267,7 @@ class Startor{
 
 			foreach($this->routeParam["middleware"] as $m_){
 
-				$middlewareName = $this->routeParam["paths"]["namespace"] . "\\" . MK3_PATH_NAME_MIDDLEWARE . "\\" .ucfirst($m_) . MK3_PATH_NAME_MIDDLEWARE;
+				$middlewareName = $this->routeParam["paths"]["namespace"] . "\\" . RLD_PATH_NAME_MIDDLEWARE . "\\" .ucfirst($m_) . RLD_PATH_NAME_MIDDLEWARE;
 
 				$mbuff = new $middlewareName;
 
@@ -304,9 +304,9 @@ class Startor{
 	 */
 	private function setController(){
 
-		$controllerName = $this->routeParam["paths"]["namespace"] . MK3_PATH_SEPARATE_NAMESPACE. 
-			MK3_PATH_NAME_CONTROLLER . MK3_PATH_SEPARATE_NAMESPACE. 
-			ucfirst($this->routeParam["controller"]). MK3_PATH_NAME_CONTROLLER
+		$controllerName = $this->routeParam["paths"]["namespace"] . RLD_PATH_SEPARATE_NAMESPACE. 
+			RLD_PATH_NAME_CONTROLLER . RLD_PATH_SEPARATE_NAMESPACE. 
+			ucfirst($this->routeParam["controller"]). RLD_PATH_NAME_CONTROLLER
 		;
 
 		if(!class_exists($controllerName)){
@@ -361,9 +361,9 @@ class Startor{
 	 */
 	public function setShell(){
 
-		$shellName = $this->routeParam["paths"]["namespace"] . MK3_PATH_SEPARATE_NAMESPACE. 
-			MK3_PATH_NAME_SHELL . MK3_PATH_SEPARATE_NAMESPACE. 
-			ucfirst($this->routeParam["shell"]). MK3_PATH_NAME_SHELL
+		$shellName = $this->routeParam["paths"]["namespace"] . RLD_PATH_SEPARATE_NAMESPACE. 
+			RLD_PATH_NAME_SHELL . RLD_PATH_SEPARATE_NAMESPACE. 
+			ucfirst($this->routeParam["shell"]). RLD_PATH_NAME_SHELL
 		;
 
 		if(!class_exists($shellName)){
@@ -416,7 +416,7 @@ class Startor{
 	 */
 	private function errorCLI($exception){
 
-		$exceptionPath = $this->routeParam["paths"]["namespace"] .MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_EXCEPTION . MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_EXCEPTION_CLI;
+		$exceptionPath = $this->routeParam["paths"]["namespace"] .RLD_PATH_SEPARATE_NAMESPACE . RLD_PATH_NAME_EXCEPTION . RLD_PATH_SEPARATE_NAMESPACE . RLD_PATH_NAME_EXCEPTION_CLI;
 
 		if(!class_exists($exceptionPath)){
 			throw new \Exception('Missing Exception class not found.');
@@ -433,7 +433,7 @@ class Startor{
 	 */
 	private function errorWeb($exception){
 
-		$exceptionPath = $this->routeParam["paths"]["namespace"] .MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_EXCEPTION . MK3_PATH_SEPARATE_NAMESPACE . MK3_PATH_NAME_EXCEPTION;
+		$exceptionPath = $this->routeParam["paths"]["namespace"] .RLD_PATH_SEPARATE_NAMESPACE . RLD_PATH_NAME_EXCEPTION . RLD_PATH_SEPARATE_NAMESPACE . RLD_PATH_NAME_EXCEPTION;
 		
 		if(!class_exists($exceptionPath)){
 			throw new \Exception('Missing Exception class not found.');

@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * 
  * For constant initialization..
  * 
@@ -13,91 +13,91 @@
  */
 
 // path separate
-defineCheck('MK3_PATH_SEPARATE', '/');
+defineCheck('RLD_PATH_SEPARATE', '/');
 
-defineCheck('MK3_PATH_SEPARATE_NAMESPACE', '\\');
+defineCheck('RLD_PATH_SEPARATE_NAMESPACE', '\\');
 
-defineCheck('MK3_PATH_NAME_CONFIG', 'config');
+defineCheck('RLD_PATH_NAME_CONFIG', 'config');
 
 // config path
-defineCheck('MK3_PATH_CONFIG', MK3_ROOT. MK3_PATH_SEPARATE . MK3_PATH_NAME_CONFIG);
+defineCheck('RLD_PATH_CONFIG', RLD_ROOT. RLD_PATH_SEPARATE . RLD_PATH_NAME_CONFIG);
 
 // app.php file path
-defineCheck('MK3_PATH_APP', MK3_ROOT. MK3_PATH_SEPARATE . 'app');
+defineCheck('RLD_PATH_APP', RLD_ROOT. RLD_PATH_SEPARATE . 'app');
 
 // path name of "rendering"
-defineCheck('MK3_PATH_NAME_RENDERING', 'rendering');
+defineCheck('RLD_PATH_NAME_RENDERING', 'rendering');
 
 // path name of "Rende" Class
-defineCheck('MK3_PATH_NAME_RENDER', 'Render');
+defineCheck('RLD_PATH_NAME_RENDER', 'Render');
 
 // path name of "View"
-defineCheck('MK3_PATH_NAME_VIEW', 'View');
+defineCheck('RLD_PATH_NAME_VIEW', 'View');
 
 // path name of "Template"
-defineCheck('MK3_PATH_NAME_TEMPLATE', 'Template');
+defineCheck('RLD_PATH_NAME_TEMPLATE', 'Template');
 
 // path name of "ViewPart"
-defineCheck('MK3_PATH_NAME_VIEWPART', 'ViewPart');
+defineCheck('RLD_PATH_NAME_VIEWPART', 'ViewPart');
 
 // path rendering
-defineCheck('MK3_PATH_RENDERING', MK3_ROOT. MK3_PATH_SEPARATE .MK3_PATH_NAME_RENDERING);
+defineCheck('RLD_PATH_RENDERING', RLD_ROOT. RLD_PATH_SEPARATE .RLD_PATH_NAME_RENDERING);
 
 // path render
-defineCheck('MK3_PATH_RENDERING_RENDER', MK3_PATH_RENDERING . MK3_PATH_SEPARATE . MK3_PATH_NAME_RENDER);
+defineCheck('RLD_PATH_RENDERING_RENDER', RLD_PATH_RENDERING . RLD_PATH_SEPARATE . RLD_PATH_NAME_RENDER);
 
 // path view
-defineCheck('MK3_PATH_RENDERING_VIEW', MK3_PATH_RENDERING . MK3_PATH_SEPARATE . MK3_PATH_NAME_VIEW);
+defineCheck('RLD_PATH_RENDERING_VIEW', RLD_PATH_RENDERING . RLD_PATH_SEPARATE . RLD_PATH_NAME_VIEW);
 
-defineCheck('MK3_PATH_RENDERING_TEMPLATE',MK3_PATH_RENDERING . MK3_PATH_SEPARATE . MK3_PATH_NAME_TEMPLATE);
+defineCheck('RLD_PATH_RENDERING_TEMPLATE',RLD_PATH_RENDERING . RLD_PATH_SEPARATE . RLD_PATH_NAME_TEMPLATE);
 
-defineCheck('MK3_PATH_RENDERING_VIEWPART',MK3_PATH_RENDERING . MK3_PATH_SEPARATE . MK3_PATH_NAME_VIEWPART);
+defineCheck('RLD_PATH_RENDERING_VIEWPART',RLD_PATH_RENDERING . RLD_PATH_SEPARATE . RLD_PATH_NAME_VIEWPART);
 
-defineCheck('MK3_DEFNS', 'app');
+defineCheck('RLD_DEFNS', 'app');
 
-defineCheck('MK3_PATH_NAME_CONTROLLER', 'Controller');
+defineCheck('RLD_PATH_NAME_CONTROLLER', 'Controller');
 
-defineCheck('MK3_PATH_NAME_PACK', 'Pack');
+defineCheck('RLD_PATH_NAME_PACK', 'Pack');
 
-defineCheck('MK3_PATH_NAME_MODEL', 'Model');
+defineCheck('RLD_PATH_NAME_MODEL', 'Model');
 
-defineCheck('MK3_PATH_NAME_RENDER', 'Render');
+defineCheck('RLD_PATH_NAME_RENDER', 'Render');
 
-defineCheck('MK3_PATH_NAME_SHELL', 'Shell');
+defineCheck('RLD_PATH_NAME_SHELL', 'Shell');
 
-defineCheck('MK3_PATH_NAME_MIDDLEWARE', 'Middleware');
+defineCheck('RLD_PATH_NAME_MIDDLEWARE', 'Middleware');
 
-defineCheck('MK3_PATH_NAME_EXCEPTION', 'Exception');
+defineCheck('RLD_PATH_NAME_EXCEPTION', 'Exception');
 
-defineCheck('MK3_PATH_NAME_EXCEPTION_CLI', 'ExceptionCLI');
+defineCheck('RLD_PATH_NAME_EXCEPTION_CLI', 'ExceptionCLI');
 
-defineCheck('MK3_PATH_NAME_HOOK', 'Hook');
+defineCheck('RLD_PATH_NAME_HOOK', 'Hook');
 
-// defineCheck('MK3_DEFNS_CONTROLLER', MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_CONTROLLER);
+// defineCheck('RLD_DEFNS_CONTROLLER', RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_CONTROLLER);
 
-// defineCheck('MK3_DEFNS_PACK', MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_PACK);
+// defineCheck('RLD_DEFNS_PACK', RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_PACK);
 
-// defineCheck('MK3_DEFNS_MODEL', MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_MODEL);
+// defineCheck('RLD_DEFNS_MODEL', RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_MODEL);
 
-defineCheck('MK3_DEFNS_RENDER', MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_RENDER);
+defineCheck('RLD_DEFNS_RENDER', RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_RENDER);
 
-// defineCheck('MK3_DEFNS_SHELL', MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_SHELL);
+// defineCheck('RLD_DEFNS_SHELL', RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_SHELL);
 
-// defineCheck('MK3_DEFNS_MIDDLEWARE', MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_MIDDLEWARE);
+// defineCheck('RLD_DEFNS_MIDDLEWARE', RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_MIDDLEWARE);
 
-// defineCheck('MK3_DEFNS_ELCLASS', MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_ELCLASS);
+// defineCheck('RLD_DEFNS_ELCLASS', RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_ELCLASS);
 
-defineCheck('MK3_PATH_NAME_TEMPORARIES', '.temporaries');
+defineCheck('RLD_PATH_NAME_TEMPORARIES', '.temporaries');
 
-defineCheck('MK3_PATH_NAME_PUBLIC', '.public');
+defineCheck('RLD_PATH_NAME_PUBLIC', '.public');
 
-defineCheck('MK3_PATH_TEMPORARY', MK3_ROOT . MK3_PATH_SEPARATE . MK3_PATH_NAME_TEMPORARIES);
+defineCheck('RLD_PATH_TEMPORARY', RLD_ROOT . RLD_PATH_SEPARATE . RLD_PATH_NAME_TEMPORARIES);
 
-defineCheck('MK3_PATH_PUBLIC', MK3_ROOT . MK3_PATH_SEPARATE . MK3_PATH_NAME_PUBLIC);
+defineCheck('RLD_PATH_PUBLIC', RLD_ROOT . RLD_PATH_SEPARATE . RLD_PATH_NAME_PUBLIC);
 
-defineCheck('MK3_CONTAINER', "container");
+defineCheck('RLD_CONTAINER', "container");
 
-defineCheck('MK3_VIEW_EXTENSION',".view");
+defineCheck('RLD_VIEW_EXTENSION',".view");
 
 function defineCheck($name,$value){
 

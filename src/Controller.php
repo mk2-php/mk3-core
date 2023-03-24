@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * Controller
  * 
  * Basic Controller class.
@@ -13,7 +13,7 @@
  * ===================================================
  */
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 class Controller extends CoreBlock{
 
@@ -67,9 +67,9 @@ class Controller extends CoreBlock{
 			if(!empty(RequestRouting::$_params["module"])){
 				$_view = "modules/". 
 					lcfirst(RequestRouting::$_params["module"]) . "/" . 
-					MK3_PATH_NAME_RENDERING . "/" .
-					MK3_PATH_NAME_VIEW . 
-					substr($this->view, strlen("/modules/". lcfirst(RequestRouting::$_params["module"]).MK3_PATH_SEPARATE. MK3_DEFNS . MK3_PATH_SEPARATE . MK3_PATH_NAME_CONTROLLER));
+					RLD_PATH_NAME_RENDERING . "/" .
+					RLD_PATH_NAME_VIEW . 
+					substr($this->view, strlen("/modules/". lcfirst(RequestRouting::$_params["module"]).RLD_PATH_SEPARATE. RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_CONTROLLER));
 
 				$this->view = $_view;
 			}
@@ -80,11 +80,11 @@ class Controller extends CoreBlock{
 		if(in_array("Render",$useClass)){
 
 			$renderName="Render";
-			$renderClassName='Mk3\Core\\'.$renderName;
+			$renderClassName='Reald\Core\\'.$renderName;
 	
 			if(!empty($this->RenderName)){
 				$renderName=$this->RenderName."Render";
-				$renderClassName = MK3_DEFNS_RENDER."\\".$renderName;
+				$renderClassName = RLD_DEFNS_RENDER."\\".$renderName;
 			}
 	
 			$render=new $renderClassName();

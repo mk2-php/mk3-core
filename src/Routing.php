@@ -2,7 +2,7 @@
 /**
  * ===================================================
  * 
- * PHP FW - Mk3 -
+ * PHP FW "Reald"
  * Routing
  * 
  * Object class for initial operation.
@@ -13,7 +13,7 @@
  * ===================================================
  */
 
-namespace Mk3\Core;
+namespace Reald\Core;
 
 class Routings{
 	public static $_data=null;
@@ -210,11 +210,11 @@ class Routing{
 						$action = $rpp_[1];
 						continue;
 					}
-					else if($rpp_[0] == lcfirst(MK3_CONTAINER)){
+					else if($rpp_[0] == lcfirst(RLD_CONTAINER)){
 						$container = $rpp_[1];
 						continue;
 					}
-					else if($rpp_[0] == lcfirst(MK3_PATH_NAME_MIDDLEWARE)){
+					else if($rpp_[0] == lcfirst(RLD_PATH_NAME_MIDDLEWARE)){
 						if($middleware){
 							$middleware = array_merge($middleware, explode(",", $rpp_[1]));
 						}
@@ -250,14 +250,14 @@ class Routing{
 
 				if($container){
 					$buffer["paths"] = [
-						"namespace" => MK3_PATH_SEPARATE_NAMESPACE . ucfirst(MK3_CONTAINER) . MK3_PATH_SEPARATE_NAMESPACE . ucfirst($container). MK3_PATH_SEPARATE_NAMESPACE . ucfirst(MK3_DEFNS),
-						"rendering" => MK3_ROOT. MK3_PATH_SEPARATE . MK3_CONTAINER . MK3_PATH_SEPARATE . $container. MK3_PATH_SEPARATE. MK3_PATH_NAME_RENDERING,
+						"namespace" => RLD_PATH_SEPARATE_NAMESPACE . ucfirst(RLD_CONTAINER) . RLD_PATH_SEPARATE_NAMESPACE . ucfirst($container). RLD_PATH_SEPARATE_NAMESPACE . ucfirst(RLD_DEFNS),
+						"rendering" => RLD_ROOT. RLD_PATH_SEPARATE . RLD_CONTAINER . RLD_PATH_SEPARATE . $container. RLD_PATH_SEPARATE. RLD_PATH_NAME_RENDERING,
 					];
 				}
 				else{
 					$buffer["paths"] = [
-						"namespace" => str_replace(MK3_PATH_SEPARATE, MK3_PATH_SEPARATE_NAMESPACE, ucfirst(MK3_DEFNS)),
-						"rendering" => MK3_PATH_RENDERING,
+						"namespace" => str_replace(RLD_PATH_SEPARATE, RLD_PATH_SEPARATE_NAMESPACE, ucfirst(RLD_DEFNS)),
+						"rendering" => RLD_PATH_RENDERING,
 					];
 				}
 
@@ -292,7 +292,7 @@ class Routing{
 					$mode = "pages";
 				}
 
-				$containerRoutingFilePath = MK3_ROOT . MK3_PATH_SEPARATE . MK3_CONTAINER . MK3_PATH_SEPARATE . $rp_["container"] . MK3_PATH_SEPARATE . MK3_PATH_NAME_CONFIG . MK3_PATH_SEPARATE . "routing_". $mode .".php";
+				$containerRoutingFilePath = RLD_ROOT . RLD_PATH_SEPARATE . RLD_CONTAINER . RLD_PATH_SEPARATE . $rp_["container"] . RLD_PATH_SEPARATE . RLD_PATH_NAME_CONFIG . RLD_PATH_SEPARATE . "routing_". $mode .".php";
 		
 				if(!file_exists($containerRoutingFilePath)){
 					continue;
@@ -376,8 +376,8 @@ class Routing{
 			'port' => $_SERVER['SERVER_PORT'],
 			'remoteIp' => $remoteIp,
 			"paths"=>[
-				"namespace" => MK3_DEFNS,
-				"rendering" => MK3_PATH_RENDERING,
+				"namespace" => RLD_DEFNS,
+				"rendering" => RLD_PATH_RENDERING,
 			]
 		];
 
@@ -391,8 +391,8 @@ class Routing{
 		$response=[
 			'root'=>$commandLine,
 			"paths"=>[
-				"namespace" => MK3_DEFNS,
-				"rendering" => MK3_PATH_RENDERING,
+				"namespace" => RLD_DEFNS,
+				"rendering" => RLD_PATH_RENDERING,
 			]
 		];
 
