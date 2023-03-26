@@ -61,9 +61,10 @@ class Controller extends CoreBlock{
 	 * _rendering
 	 */
 	public function _rendering(){
-/*
+
 		if(empty($this->view)){
 			$this->view = RequestRouting::$_params["controller"]. "/". RequestRouting::$_params["action"];
+		/*
 			if(!empty(RequestRouting::$_params["module"])){
 				$_view = "modules/". 
 					lcfirst(RequestRouting::$_params["module"]) . "/" . 
@@ -73,8 +74,9 @@ class Controller extends CoreBlock{
 
 				$this->view = $_view;
 			}
+		*/
 		}
-*/
+
 		$useClass=Config::get("config.useClass");
 
 		if(in_array("Render",$useClass)){
@@ -92,11 +94,7 @@ class Controller extends CoreBlock{
 			if(method_exists($render,"handleBefore")){
 				$render->handleBefore();
 			}
-
-			if(!empty($this->UI)){
-				$render->UI = $this->UI;
-			}
-
+			
 			$render->render($this);
 
 			if(method_exists($render,"handleAfter")){

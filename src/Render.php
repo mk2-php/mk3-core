@@ -33,21 +33,27 @@ class Render extends CoreBlock{
 			$this->templateParent = $context->templateParent;
 		}
 		
-		if(!empty($this->template)){
-			if(Config::exists("config.coreBlock.useResponse")){
+		if(Config::exists("config.coreBlock.useResponse")){
+			if(!empty($this->template)){
 				$this->Response->template($context->template);
 			}
-		}
-		else if(!empty($this->templateParent)){
-			if(Config::exists("config.coreBlock.useResponse")){
+			else if(!empty($this->templateParent)){
 				$this->Response->parentTemplate($context->templateParent);
 			}
-		}
-		else{
-			if(Config::exists("config.coreBlock.useResponse")){
+			else{
+
+				$juge = $this->Response->viewExists($context->view);
+
+				if(!$juge){
+					$getView = $this->Response->view($context->view);
+					throw new \Exception(str_replace("<pre>","",$getView));
+				}
+				
 				$this->Response->view($context->view);
 			}
 		}
+
+
 
 	}
 }

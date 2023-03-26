@@ -261,6 +261,31 @@ class Response{
 	}
 
 	/**
+	 * viewExists
+	 * @param String $viewName
+	 * @return Boolean
+	 */
+	public function viewExists($viewName){
+
+		$params = RequestRouting::$_params;
+
+		if(substr($viewName,0,1) == "/"){
+			$viewPath = $viewName;
+		}
+		else{
+			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". $viewName . RLD_VIEW_EXTENSION;
+		}
+
+		$viewPath = str_replace("//","/",$viewPath);
+
+		if(!file_exists($viewPath)){
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * view
 	 * @param string $viewName
 	 * @param boolean $outputBufferd
@@ -279,8 +304,7 @@ class Response{
 		$viewPath = str_replace("//","/",$viewPath);
 
 		if(!file_exists($viewPath)){
-			echo "<pre>[ViewError] View file not found. \n Path : '".$viewPath."'\n</pre>";
-			return;
+			return "<pre>[ViewError] View file not found. \n Path : '".$viewPath."'\n</pre>";
 		}
 
 		return $this->_view($viewPath, $outputBufferd);
@@ -311,7 +335,7 @@ class Response{
 	 */
 	private function _view($viewPath, $outputBufferd){
 
-		$templateEngine=Config::get("config.templateEngine");
+		$templateEngine = Config::get("config.templateEngine");
 
 		if($templateEngine === self::TEMPLATEENGINE_SMARTY){
 			return $this->_requireEngineSmarty($viewPath,$outputBufferd);
@@ -320,7 +344,7 @@ class Response{
 			return $this->_requireEngineTwig($viewPath,$outputBufferd);
 		}
 		else{
-			return $this->_require($viewPath,$outputBufferd);
+			return $this->_require($viewPath, $outputBufferd);
 		}
 	}
 
