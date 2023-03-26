@@ -76,6 +76,8 @@ class Request{
 
 		$post = new RequestCollection(RequestCollectionStatic::METHOD_POST);
 
+		$this->_getOnFiles($post);
+
 		if($name){
 			return $post->get($name);
 		}
@@ -90,6 +92,8 @@ class Request{
 	public function put($name = null){
 
 		$put = new RequestCollection(RequestCollectionStatic::METHOD_PUT);
+
+		$this->_getOnFiles($post);
 
 		if($name){
 			return $put->get($name);
@@ -106,12 +110,60 @@ class Request{
 
 		$delete = new RequestCollection(RequestCollectionStatic::METHOD_DELETE);
 
+		$this->_getOnFiles($post);
+
 		if($name){
 			return $delete->get($name);
 		}
 		else{
 			return $delete;
 		}
+	}
+
+	/**
+	 * _getOnFiles
+	 * 
+	 * ???!
+	 * @param Array &$post 
+	 */
+	private function _getOnFiles(&$post){
+
+		if($_FILES){
+
+			foreach($_FILES as $field => $f_){
+
+				$exists = true;
+				$buff = [];
+
+				foreach($f_ as $column => $ff_){
+					if(is_array($ff_)){
+
+						foreach($ff_ as $index => $fff_){
+							if(empty($buff[$index])){
+								$buff[$index] = [];
+							}
+
+							$buff[$index][$column] = $fff_;
+						}
+					}
+					else{
+						$buff[0] = [];
+						$buff[0][$column] = $ff_;
+					}
+				}
+
+				if(count($buff) == 1){
+					if($buff[0]["error"] == 4){
+						$buff = null;
+					}
+				}
+
+				$post->set([
+					$field => $buff,
+				]);
+			}
+		}
+		
 	}
 
 }
@@ -121,7 +173,7 @@ class RequestCollection{
 	private $type;
 
 	public function __construct($type){
-		$this->type=$type;
+		$this->type = $type;
 	}
 
 	/**
