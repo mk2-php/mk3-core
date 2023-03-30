@@ -421,7 +421,7 @@ class Routing{
 		if(!empty($routingList)){
 			foreach($routingList as $url => $route){
 
-				$url0 = str_replace("*","{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}/{:?}",$url);
+				$url0 = str_replace("*","{?}/{?}/{?}/{?}/{?}/{?}/{?}/{?}/{?}/{?}/{?}",$url);
 
 				$urls=explode("/",$url0);
 				array_shift($urls);
@@ -502,12 +502,14 @@ class Routing{
 		$confirmPassParams=null;
 		foreach($matrixA as $url=>$ma_){
 			if($ma_ && $ma_==$matrixB[$url]){
-				$output=$routingList[$url];
+
+				$output = $routingList[$url];
+
 				if(!empty($passParams[$url])){
-					$confirmPassParams=$passParams[$url];
+					$confirmPassParams = $passParams[$url];
 				}
 				else{
-					$confirmPassParams=null;
+					$confirmPassParams = null;
 				}
 			}
 		}
@@ -534,6 +536,8 @@ class Routing{
 				$output2 = $output["_"];
 			}
 		}
+		
+		$output2["request"] = $confirmPassParams;
 		
 		if($output2){
 			$output2 = array_merge($rootParams, $output2);

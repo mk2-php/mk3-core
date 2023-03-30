@@ -12,7 +12,8 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Reald\\Core\\":"src/"
+			"Reald\\Core\\":"src/",
+			"Reald\\Services\\":"services/"
 		}
 	}
 }

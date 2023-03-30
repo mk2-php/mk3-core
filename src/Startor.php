@@ -436,7 +436,12 @@ class Startor{
 		$exceptionPath = $this->routeParam["paths"]["namespace"] .RLD_PATH_SEPARATE_NAMESPACE . RLD_PATH_NAME_EXCEPTION . RLD_PATH_SEPARATE_NAMESPACE . RLD_PATH_NAME_EXCEPTION;
 		
 		if(!class_exists($exceptionPath)){
-			throw new \Exception('Missing Exception class not found.');
+
+			$exceptionPath = RLD_DEFNS . RLD_PATH_SEPARATE_NAMESPACE . RLD_PATH_NAME_EXCEPTION  . RLD_PATH_SEPARATE_NAMESPACE. RLD_PATH_NAME_EXCEPTION;
+
+			if(!class_exists($exceptionPath)){
+				throw new \Exception('Missing Exception class not found.');
+			}
 		}
 
 		$exp = new $exceptionPath;

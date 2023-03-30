@@ -57,13 +57,22 @@ class Controller extends CoreBlock{
 		return $this;
 	}
 
+	public function setViewParent($view){
+		$this->viewParent =$view;
+		return $this;
+	}
+
 	/**
 	 * _rendering
 	 */
 	public function _rendering(){
 
 		if(empty($this->view)){
-			$this->view = RequestRouting::$_params["controller"]. "/". RequestRouting::$_params["action"];
+			if(
+				!empty(RequestRouting::$_params["controller"]) && 
+				!empty(RequestRouting::$_params["action"])){	
+					$this->view = RequestRouting::$_params["controller"]. "/". RequestRouting::$_params["action"];
+			}
 		/*
 			if(!empty(RequestRouting::$_params["module"])){
 				$_view = "modules/". 

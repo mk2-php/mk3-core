@@ -311,6 +311,25 @@ class Response{
 	}
 
 	/**
+	 * parentViewExists
+	 * @param String $viewName
+	 * @return Boolean
+	 */
+	public function parentViewExists($viewName){
+
+		$params = RequestRouting::$_params;
+
+		$viewPath = RLD_PATH_RENDERING_VIEW . "/" . $viewName . RLD_VIEW_EXTENSION;
+		$viewPath = str_replace("//","/",$viewPath);
+
+		if(!file_exists($viewPath)){
+			return false;
+		}
+
+		return true;
+	}
+	
+	/**
 	 * parentView
 	 * @param string $viewName
 	 * @param boolean $outputBufferd
