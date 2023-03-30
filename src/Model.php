@@ -15,4 +15,4 @@
 
 namespace Reald\Core;
 
-class Model extends CoreBlock{}
+class Model{}

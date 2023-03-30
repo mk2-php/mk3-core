@@ -17,59 +17,23 @@ namespace Reald\Core;
 
 use Exception;
 
-class ResponseData{
-
-	private static $_data=[];
-
-	/**
-	 * get
-	 * @param $name = null
-	 */
-	public static function get($name=null){
-
-		if($name){
-			if(!empty(self::$_data[$name])){
-				return self::$data[$name];
-			}
-		}
-		else{
-			return self::$_data;
-		}
-
-	}
-
-	/**
-	 * set
-	 * @param $name
-	 * @param $value
-	 */
-	public static function set($name,$value){
-		self::$_data[$name]=$value;
-	}
-
-}
-
 class Response{
 
 	private const TEMPLATEENGINE_SMARTY = "smarty";
 	private const TEMPLATEENGINE_TWIG = "twig";
 
-	/**
-	 * __construct
-	 * @param &$context
-	 */
-	public function __construct(&$context){
-		$this->context = $context;
-	}
+	private static $_viewData = [];
+
+	public static $view = null;
+	public static $viewParent = null;
 
 	/**
 	 * code
 	 * @param $code = null 
 	 */
-	public function code($code = null){
+	public static function code($code = null){
 		if($code){
 			http_response_code($code);
-			return $this;
 		}
 		else{
 			return http_response_code();
@@ -80,87 +44,32 @@ class Response{
 	 * url
 	 * @param string $urls
 	 */
-	 public function url($urls = null){
+	 public static function url($urls = null, $fullPath = false){
 
-		if(is_string($urls)){
-
-			if($urls[0]=="/"){
-				return $urls;
-			}
-			else if($urls[0]=="@"){
-				if(!RequestRouting::$_params["phpSelf"]){
-					return "/";
-				}
-				return RequestRouting::$_params["phpSelf"];
-			}
-			else{
-				return RequestRouting::$_params["phpSelf"]."/".$urls;
-			}
-
+		if(!$urls){
+			$urls = RequestRouting::$_params["root"];
 		}
-		else{
 
-			if(!$urls){
-				return RequestRouting::$_params["path"];
-			}
-
-			$url="";
-			if(!empty($urls["controller"])){
-				$url.=$urls["controller"]."/";
-			}
-			else{
-				$url.=RequestRouting::$_params["controller"]."/";
-			}
-
-			if(!empty($urls["action"])){
-				if($urls["action"]!="index"){
-					$url.=$urls["action"]."/";
-				}
-			}
-
-			if(!empty($urls["pass"])){
-				if(!is_array($urls["pass"])){
-					$urls["pass"]=[$urls["pass"]];
-				}
-				foreach($urls["pass"] as $p_){
-					$url.=$p_."/";
-				}
-			}
-
-			if(!empty($urls["query"])){
-				if(!is_array($urls["query"])){
-					$urls["query"]=[$urls["query"]];
-				}
-				$query="?";
-				$ind=0;
-				foreach($urls["query"] as $field=>$value){
-					if($ind){
-						$query.="&";
-					}
-					$query.=$field."=".$value;
-					$ind++;
-				}
-
-				$url.=$query;
-			}
-
-			return RequestRouting::$_params["path"].$url;
+		$url = "";
+		if($fullPath){
+			$url = RequestRouting::$_params["url"];
 		}
-	}
 
-	/**
-	 * homeUrl
-	 */
-	public function homeUrl(){
-		return $this->url("@");
+		$url .= RequestRouting::$_params["phpSelf"] .$urls;
+
+		return $url;
 	}
 
 	/**
 	 * redirect
-	 * @param string $urls = null
+	 * @param string $url = null
 	 */
-	public function redirect($urls = null){
-		$url=$this->url($urls);
+	public static function redirect($url = null){
+
+		if(substr($url,0,1) == "/"){
+			$url = self::url($url);
+		}
+
 		header('location: '.$url);
 		exit;
 	}
@@ -168,29 +77,35 @@ class Response{
 	/**
 	 * back
 	 */
-	public function back(){
+	public static function back(){
+
+		if(!isset($_SERVER["HTTP_REFERER"])){
+			return;
+		}
+
 		$uri = $_SERVER['HTTP_REFERER'];
+
 		header("Location: ".$uri);
 		exit;
 	}
 
 	/**
-	 * setData
+	 * sendData
 	 * @param string $values
 	 */
-	public function setData($values){
-		foreach($values as $colum=>$value){
-			ResponseData::set($colum,$value);
+	public static function sendData($values){
+		foreach($values as $key => $value){
+			self::$_viewData[$key] = $value;
 		}
-		return $this;
 	}
 
 	/**
 	 * template
 	 * @param string $templateName
+	 * @param Array $sendViewData
 	 * @param boolean $outputBufferd
 	 */
-	public function template($templateName = null, $outputBufferd = false){
+	public static function template($templateName = null, $sendViewData = null, $outputBufferd = false){
 		
 		$params = RequestRouting::$_params;
 		
@@ -201,15 +116,20 @@ class Response{
 			return;
 		}
 
-		return $this->_template($TemplatePath, $outputBufferd);
+		if($sendViewData){
+			self::sendData($sendViewData);
+		}
+
+		return self::_template($TemplatePath, $outputBufferd);
 	}
 
 	/**
 	 * parentTemplate
 	 * @param string $templateName
+	 * @param Array $sendViewData
 	 * @param boolean $outputBufferd
 	 */
-	public function parentTemplate($templateName = null, $outputBufferd = false){
+	public static function parentTemplate($templateName = null, $sendViewData = null, $outputBufferd = false){
 
 		$params = RequestRouting::$_params;
 		
@@ -219,8 +139,12 @@ class Response{
 			echo "<pre>Template file not found. \n Path : '".$TemplatePath."'\n</pre>";
 			return;
 		}
-		
-		return $this->_template($TemplatePath, $outputBufferd);
+
+		if($sendViewData){
+			self::sendData($sendViewData);
+		}
+
+		return self::_template($TemplatePath, $outputBufferd);
 	}
 
 	/**
@@ -228,36 +152,49 @@ class Response{
 	 * @param string $TemplatePath
 	 * @param boolean $outputBufferd
 	 */
-	private function _template($TemplatePath, $outputBufferd){
+	private static function _template($TemplatePath, $outputBufferd){
 
 		$templateEngine = Config::get("config.templateEngine");
 
 		if($templateEngine===self::TEMPLATEENGINE_SMARTY){
-			return $this->_requireEngineSmarty($TemplatePath,$outputBufferd);
+			return self::_requireEngineSmarty($TemplatePath, $outputBufferd);
 		}
 		else if($templateEngine===self::TEMPLATEENGINE_TWIG){
-			return $this->_requireEngineTwig($TemplatePath,$outputBufferd);
+			return self::_requireEngineTwig($TemplatePath, $outputBufferd);
 		}
 
-		return $this->_require($TemplatePath,$outputBufferd);
+		return self::_require($TemplatePath, $outputBufferd);
 	}
 
 	/**
 	 * content
+	 * @param Array $sendViewData
 	 * @param boolean $outputBufferd
 	 */
-	public function content($outputBufferd = false){
+	public static function content($sendViewData = null, $outputBufferd = false){
 
-		$params=RequestRouting::$_params;
+		$params = RequestRouting::$_params;
 
-		if(!empty($this->context->view)){
-			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". $this->context->view . RLD_VIEW_EXTENSION;
-		}
-		else{
+		if(isset($params["controller"]) && isset($params["action"])){
 			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". $params["controller"] . "/". $params["action"] . RLD_VIEW_EXTENSION;
 		}
+		
+		if(!empty(self::$view)){
+			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". self::$view . RLD_VIEW_EXTENSION;
+		}
+		if(!empty(self::$viewParent)){
+			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". self::$viewParent . RLD_VIEW_EXTENSION;
+		}
 
-		return $this->_view($viewPath, $outputBufferd);
+		if(!$viewPath){
+			return;
+		}
+
+		if($sendViewData){
+			self::sendData($sendViewData);
+		}
+
+		return self::_view($viewPath, $outputBufferd);
 	}
 
 	/**
@@ -265,7 +202,7 @@ class Response{
 	 * @param String $viewName
 	 * @return Boolean
 	 */
-	public function viewExists($viewName){
+	public static function viewExists($viewName){
 
 		$params = RequestRouting::$_params;
 
@@ -288,9 +225,10 @@ class Response{
 	/**
 	 * view
 	 * @param string $viewName
+	 * @param Array $sendViewData
 	 * @param boolean $outputBufferd
 	 */
-	public function view($viewName, $outputBufferd = false){
+	public static function view($viewName, $sendViewData = null, $outputBufferd = false){
 
 		$params = RequestRouting::$_params;
 
@@ -307,7 +245,11 @@ class Response{
 			return "<pre>[ViewError] View file not found. \n Path : '".$viewPath."'\n</pre>";
 		}
 
-		return $this->_view($viewPath, $outputBufferd);
+		if($sendViewData){
+			self::sendData($sendViewData);
+		}
+
+		return self::_view($viewPath, $outputBufferd);
 	}
 
 	/**
@@ -315,7 +257,7 @@ class Response{
 	 * @param String $viewName
 	 * @return Boolean
 	 */
-	public function parentViewExists($viewName){
+	public static function parentViewExists($viewName){
 
 		$params = RequestRouting::$_params;
 
@@ -332,9 +274,10 @@ class Response{
 	/**
 	 * parentView
 	 * @param string $viewName
+	 * @param Array $sendViewData
 	 * @param boolean $outputBufferd
 	 */
-	public function parentView($viewName, $outputBufferd=false){
+	public static function parentView($viewName, $sendViewData = null, $outputBufferd=false){
 
 		$viewPath = RLD_PATH_RENDERING_VIEW . "/" . $viewName . RLD_VIEW_EXTENSION;
 		$viewPath = str_replace("//","/",$viewPath);
@@ -344,7 +287,11 @@ class Response{
 			return;
 		}
 
-		return $this->_view($viewPath, $outputBufferd);
+		if($sendViewData){
+			self::sendData($sendViewData);
+		}
+
+		return self::_view($viewPath, $outputBufferd);
 	}
 
 	/**
@@ -352,27 +299,28 @@ class Response{
 	 * @param string $viewPath
 	 * @param boolean $outputBufferd
 	 */
-	private function _view($viewPath, $outputBufferd){
+	private static function _view($viewPath, $outputBufferd){
 
 		$templateEngine = Config::get("config.templateEngine");
 
 		if($templateEngine === self::TEMPLATEENGINE_SMARTY){
-			return $this->_requireEngineSmarty($viewPath,$outputBufferd);
+			return self::_requireEngineSmarty($viewPath, $outputBufferd);
 		}
 		else if($templateEngine === self::TEMPLATEENGINE_TWIG){
-			return $this->_requireEngineTwig($viewPath,$outputBufferd);
+			return self::requireEngineTwig($viewPath, $outputBufferd);
 		}
 		else{
-			return $this->_require($viewPath, $outputBufferd);
+			return self::_require($viewPath, $outputBufferd);
 		}
 	}
 
 	/**
 	 * viewPart
 	 * @param string $viewPartName
+	 * @param Array $sendViewData
 	 * @param boolean $outputBufferd
 	 */
-	public function viewPart($viewPartName, $outputBufferd = false){
+	public static function viewPart($viewPartName, $sendViewData = null, $outputBufferd = false){
 
 		$params= RequestRouting::$_params;
 
@@ -383,16 +331,21 @@ class Response{
 			echo "<pre>[ViewPartError] ViewPart file not found. \n Path : '".$viewPartPath."'\n</pre>";
 			return;
 		}
-		
-		return $this->_viewPart($viewPartPath, $outputBufferd);
+
+		if($sendViewData){
+			self::sendData($sendViewData);
+		}
+
+		return self::_viewPart($viewPartPath, $outputBufferd);
 	}
 
 	/**
 	 * parentViewPart
 	 * @param string $viewPartName
+	 * @param Array $sendViewData
 	 * @param boolean $outputBufferd
 	 */
-	public function parentViewPart($viewPartName, $outputBufferd = false){
+	public function parentViewPart($viewPartName, $sendViewData = null, $outputBufferd = false){
 
 		$viewPartPath = RLD_PATH_RENDERING_VIEWPART . "/" . $viewPartName . RLD_VIEW_EXTENSION;
 		$viewPartPath = str_replace("\\","/",$viewPartPath);
@@ -401,8 +354,12 @@ class Response{
 			echo "<pre>[ViewPartError] ViewPart file not found. \n Path : '".$viewPartPath."'\n</pre>";
 			return;
 		}
-		
-		return $this->_viewPart($viewPartPath, $outputBufferd);
+
+		if($sendViewData){
+			self::sendData($sendViewData);
+		}
+
+		return self::_viewPart($viewPartPath, $outputBufferd);
 
 	}
 
@@ -411,18 +368,18 @@ class Response{
 	 * @param string $viewPartName
 	 * @param boolean $outputBufferd
 	 */
-	private function _viewPart($viewPartPath ,$outputBufferd){
+	private static function _viewPart($viewPartPath ,$outputBufferd){
 
 		$templateEngine = Config::get("config.templateEngine");
 
 		if($templateEngine === self::TEMPLATEENGINE_SMARTY){
-			return $this->_requireEngineSmarty($viewPartPath,$outputBufferd);
+			return self::_requireEngineSmarty($viewPartPath,$outputBufferd);
 		}
 		else if($templateEngine === self::TEMPLATEENGINE_TWIG){
-			return  $this->_requireEngineTwig($viewPartPath,$outputBufferd);
+			return self::_requireEngineTwig($viewPartPath,$outputBufferd);
 		}
 		else{
-			return $this->_require($viewPartPath,$outputBufferd);
+			return self::_require($viewPartPath,$outputBufferd);
 		}
 	}
 
@@ -432,7 +389,7 @@ class Response{
 	 * @param $hookMethod
 	 * @param $aregments = null
 	 */
-	public function hookReceive($hookName, $hookMethod, $aregments = null){
+	public static function hookReceive($hookName, $hookMethod, $aregments = null){
 
 		$containerPath =  RLD_ROOT . RLD_PATH_SEPARATE. RLD_CONTAINER . RLD_PATH_SEPARATE ."*";
 
@@ -476,13 +433,19 @@ class Response{
 	 * @param string $path
 	 * @param boolean $outputBufferd
 	 */
-	private function _require($path, $outputBufferd){
+	private static function _require($path, $outputBufferd){
 
 		if($outputBufferd){
 			ob_start();
 		}
 
-		$this->context->require($path);
+		if(self::$_viewData){
+			foreach(self::$_viewData as $key => $value){
+				$$key = $value;
+			}
+		}
+
+		require $path;
 
 		if($outputBufferd){
 			$contents = ob_get_contents();
@@ -498,7 +461,7 @@ class Response{
 	 * @param $loadFilePath
 	 * @param $outputBufferd
 	 */
-	private function _requireEngineSmarty($loadFilePath,$outputBufferd){
+	private static function _requireEngineSmarty($loadFilePath,$outputBufferd){
 
 
 	}
@@ -508,7 +471,7 @@ class Response{
 	 * @param $loadFilePath
 	 * @param $outputBufferd
 	 */
-	private function _requireEngineTwig($loadFilePath,$outputBufferd){
+	private static function _requireEngineTwig($loadFilePath,$outputBufferd){
 
 
 	}

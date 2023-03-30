@@ -15,4 +15,4 @@
 
 namespace Reald\Core;
 
-class Pack extends CoreBlock{}
+class Pack{}

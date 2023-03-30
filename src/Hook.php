@@ -2,4 +2,4 @@
 
 namespace Reald\Core;
 
-class Hook extends CoreBlock{}
+class Hook{}

@@ -3,7 +3,7 @@
 namespace Reald\Services;
 
 use Reald\Core\Routings;
-use Reald\Core\RequestCollectionStatic;
+use Reald\Core\Request;
 
 class Log{
 
@@ -21,7 +21,7 @@ class Log{
      * @param String $message
      * @param $option = null
      */
-    public function out($message, $option=null){
+    public function out($message = null, $option=null){
         $this->_out($message,$option);
         return $this;
     }
@@ -116,10 +116,10 @@ class Log{
 
         if($params["method"] == "GET"){
 
-            $query = RequestCollectionStatic::get(RequestCollectionStatic::METHOD_QUERY);
-
+            $query = Request::query();
+            
             if($query){
-                $headers = str_replace("{request.query}", json_encode($query, JSON_UNESCAPED_UNICODE), $headers);
+                $headers = str_replace("{request.query}", json_encode($query->all(), JSON_UNESCAPED_UNICODE), $headers);
             }
             else{
                 $headers = str_replace("{request.query}", "", $headers);                
@@ -129,30 +129,32 @@ class Log{
         }
         else{
 
-            $headers = str_replace("{request.query}", "", $headers);
+            $query = Request::query();
+
+            $headers = str_replace("{request.query}", json_encode($query->all(), JSON_UNESCAPED_UNICODE), $headers);
 
             if($params["method"] == "POST"){
 
-                $post = RequestCollectionStatic::get(RequestCollectionStatic::METHOD_POST);
+                $post = Request::post();
 
                 if($post){
-                    $headers = str_replace("{request.body}", json_encode($post,JSON_UNESCAPED_UNICODE), $headers);
+                    $headers = str_replace("{request.body}", json_encode($post->all(),JSON_UNESCAPED_UNICODE), $headers);
                 }
             }
             else if($params["method"] == "PUT"){
 
-                $post = RequestCollectionStatic::get(RequestCollectionStatic::METHOD_PUT);
+                $post = Request::put();
 
                 if($put){
-                    $headers = str_replace("{request.body}", json_encode($put,JSON_UNESCAPED_UNICODE), $headers);
+                    $headers = str_replace("{request.body}", json_encode($put->all(),JSON_UNESCAPED_UNICODE), $headers);
                 }
             }
             else if($params["method"] == "DELETE"){
 
-                $delete = RequestCollectionStatic::get(RequestCollectionStatic::METHOD_DELETE);
+                $post = Request::delete();
 
                 if($delete){
-                    $headers = str_replace("{request.body}", json_encode($delete,JSON_UNESCAPED_UNICODE), $headers);
+                    $headers = str_replace("{request.body}", json_encode($delete->all(),JSON_UNESCAPED_UNICODE), $headers);
                 }
             }
         }

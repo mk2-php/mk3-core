@@ -2,7 +2,7 @@
 
 namespace Reald\Services;
 
-use Reald\Core\RequestCollectionStatic;
+use Reald\Core\Request;
 
 // use mk2\backpack_token\TokenBackpack;
 
@@ -31,6 +31,11 @@ class FormUi{
 	 * @param $errorValue
 	 */
 	public function setError($errorValues){
+
+		if(gettype($errorValues) == "object"){
+			$errorValues = $errorValues->toArray();
+		}
+
 		$this->_errorValues = $errorValues;
 	}
 
@@ -618,17 +623,17 @@ class FormUi{
 
 		$getData = null;
         
-		if($this->methodMode == strtolower(RequestCollectionStatic::METHOD_QUERY)){
-			$getData = RequestCollectionStatic::get(RequestCollectionStatic::METHOD_QUERY);
+		if(strtoupper($this->methodMode) == Request::METHOD_QUERY){
+			$getData = Request::get()->all();
 		}
-		else if($this->methodMode == strtolower(RequestCollectionStatic::METHOD_POST)){
-			$getData = RequestCollectionStatic::get(RequestCollectionStatic::METHOD_POST);
+		else if(strtoupper($this->methodMode) == Request::METHOD_POST){
+			$getData = Request::post()->all();
 		}
-		else if($this->methodMode == strtolower(RequestCollectionStatic::METHOD_PUT)){
-			$getData = RequestCollectionStatic::get(RequestCollectionStatic::METHOD_PUT);
+		else if(strtoupper($this->methodMode) == Request::METHOD_PUT){
+			$getData = Request::put()->all();
 		}
-		else if($this->methodMode == strtolower(RequestCollectionStatic::METHOD_DELETE)){
-			$getData = RequestCollectionStatic::get(RequestCollectionStatic::METHOD_DELETE);
+		else if(strtoupper($this->methodMode) == Request::METHOD_DELETE){
+			$getData = Request::delete()->all();
 		}
 
 		return $getData;

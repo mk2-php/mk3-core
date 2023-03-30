@@ -17,22 +17,31 @@ namespace Reald\Core;
 
 class Request{
 
+	public const METHOD_QUERY = "GET";
+	public const METHOD_POST = "POST";
+	public const METHOD_PUT = "PUT";
+	public const METHOD_DELETE = "DELETE";
+
+	private static $_request;
+
 	/**
 	 * data
 	 */
-	public function data(){
+	public static function data(){
+	
+		$method = $_SERVER['REQUEST_METHOD'];
 
-		if($_SERVER['REQUEST_METHOD'] == RequestCollectionStatic::METHOD_QUERY){
-			return $this->query();
+		if($method == self::METHOD_QUERY){
+			return self::query();
 		}
-		else if($_SERVER['REQUEST_METHOD'] == RequestCollectionStatic::METHOD_POST){
-			return $this->post();
+		else if($method == self::METHOD_POST){
+			return self::post();
 		}
-		else if($_SERVER['REQUEST_METHOD'] == RequestCollectionStatic::METHOD_PUT){
-			return $this->put();
+		else if($method == self::METHOD_PUT){
+			return self::put();
 		}
-		else if($_SERVER['REQUEST_METHOD'] == RequestCollectionStatic::METHOD_DELETE){
-			return $this->delete();
+		else if($method == self::METHOD_DELETE){
+			return self::delete();
 		}
 	}
 
@@ -40,7 +49,7 @@ class Request{
 	 * params
 	 * @param string $name = null
 	 */
-	public function params($name=null){
+	public static function params($name=null){
 
 		if($name){
 			if(!empty(Routings::$_data[$name])){
@@ -56,67 +65,116 @@ class Request{
 	 * query
 	 * @param $name = null
 	 */
-	public function query($name = null){
-
-		$query = new RequestCollection(RequestCollectionStatic::METHOD_QUERY);
-		
-		if($name){
-			return $query->get($name);
-		}
-		else{
-			return $query;
-		}
+	public static function query(){
+		self::_get(self::METHOD_QUERY);
+		return new RequestControl(self::METHOD_QUERY);
 	}
 
 	/**
 	 * post
 	 * @param $name = null
 	 */
-	public function post($name = null){
-
-		$post = new RequestCollection(RequestCollectionStatic::METHOD_POST);
-
-		$this->_getOnFiles($post);
-
-		if($name){
-			return $post->get($name);
-		}
-		else{
-			return $post;
-		}
+	public static function post($name = null){
+		self::_get(self::METHOD_POST);
+		return new RequestControl(self::METHOD_POST);
 	}
 
 	/**
 	 * put
 	 */
-	public function put($name = null){
-
-		$put = new RequestCollection(RequestCollectionStatic::METHOD_PUT);
-
-		$this->_getOnFiles($post);
-
-		if($name){
-			return $put->get($name);
-		}
-		else{
-			return $put;
-		}
+	public static function put($name = null){
+		self::_get(self::METHOD_PUT);
+		return new RequestControl(self::METHOD_PUT);
 	}
 
 	/**
 	 * delete
 	 */
-	public function delete($name = null){
+	public static function delete($name = null){
+		self::_get(self::METHOD_DELETE);
+		return new RequestControl(self::METHOD_DELETE);
+	}
 
-		$delete = new RequestCollection(RequestCollectionStatic::METHOD_DELETE);
+	public static function getData($type, $name = null){
 
-		$this->_getOnFiles($post);
+		if(!isset(self::$_request[$type])){
+			return;
+		}
 
 		if($name){
-			return $delete->get($name);
+
+			if(!isset(self::$_request[$type][$name])){
+				return;
+			}
+	
+			return self::$_request[$type][$name];
 		}
 		else{
-			return $delete;
+			return self::$_request[$type];
+		}
+	}
+
+	public static function setData($type, $name, $value){
+
+		if(!isset(self::$_request[$type])){
+			self::$_request[$type] = [];
+		}
+
+		self::$_request[$type][$name] = $value;	
+	}
+
+	public static function deleteData($type, $name){
+
+		if($name){
+			unset(self::$_request[$type][$name]);
+		}
+		else{
+			unset(self::$_request[$type]);
+		}
+	}
+
+	private static function _get($type){
+
+		if(!isset(self::$_request[$type])){
+			
+			$request = null;
+			$mediaType = null;
+			
+			if(!empty($_SERVER['CONTENT_TYPE'])){
+				$content_type = explode(';',trim(strtolower($_SERVER['CONTENT_TYPE'])));
+				$mediaType = $content_type[0];	
+			}
+	
+			if (
+				$_SERVER['REQUEST_METHOD'] == $type && 
+				$mediaType == 'application/json'
+			){
+				if($type == self::METHOD_QUERY){
+					$request = $_GET;
+				}
+				else{
+					// Correspondence in case of json format.
+					$request = json_decode(file_get_contents('php://input'), true);
+				}
+			}
+			else{
+				if($type==self::METHOD_QUERY){
+					$request = $_GET;
+				}
+				else if($type == self::METHOD_POST){
+					$request = $_POST;
+				}
+				else if($type == self::METHOD_PUT){
+					$request = $_PUT;
+				}
+				else if($type == self::METHOD_DELETE){
+					$request = $_DELETE;
+				}
+
+				self::_getOnFiles($request);
+			}
+	
+			self::$_request[$type] = $request;	
 		}
 	}
 
@@ -126,7 +184,7 @@ class Request{
 	 * ???!
 	 * @param Array &$post 
 	 */
-	private function _getOnFiles(&$post){
+	private static function _getOnFiles(&$request){
 
 		if($_FILES){
 
@@ -158,168 +216,66 @@ class Request{
 					}
 				}
 
-				$post->set([
-					$field => $buff,
-				]);
+				$request[$field] = $buff;
 			}
 		}
 		
 	}
-
 }
 
-class RequestCollection{
-	
+class RequestControl{
+		
 	private $type;
 
 	public function __construct($type){
 		$this->type = $type;
 	}
 
-	/**
-	 * get
-	 * @param $name = null
-	 */
-	public function get($name=null){
-		return RequestCollectionStatic::get($this->type,$name);
+	public function __get($name){
+		return Request::getData($this->type, $name);
 	}
 
-	/**
-	 * set
-	 * @param $values
-	 */
-	public function set($values){
-		return RequestCollectionStatic::set($this->type,$values);
+	public function __set($name, $value){
+		return Request::setData($this->type, $name, $value);
+	}
+
+	public function all(){
+		return Request::getData($this->type);
+	}
+
+	public function refresh($values){
+
+		if(gettype($values) == "object"){
+			$values = $values->toArray();
+		}
+
+		foreach($values as $key => $value){
+			Request::setData($this->type, $key, $value);
+		}
+	}
+
+	public function toArray(){
+		return $this->all();
 	}
 
 	/**
 	 * exists
 	 * @param $name = null
 	 */
-	public function exists($name=null){
-		return RequestCollectionStatic::exists($this->type,$name);
+	public function exists($name = null){
+		return (boolean)Request::getData($this->type, $name);
 	}
 
 	/**
 	 * delete
 	 * @param $name = null
 	 */
-	public function delete($values=null){
-		return RequestCollectionStatic::delete($this->type,$values);
-	}
-}
-
-class RequestCollectionStatic{
-
-	private static $_request=[];
-	
-	public const METHOD_QUERY="GET";
-	public const METHOD_POST="POST";
-	public const METHOD_PUT="PUT";
-	public const METHOD_DELETE="DELETE";
-
-	/**
-	 * get
-	 * @param $type
-	 * @param $name
-	 */
-	public static function get($type, $name=null){
-
-		if(!isset(self::$_request[$type])){
-			$mediaType=null;
-			if(!empty($_SERVER['CONTENT_TYPE'])){
-				$content_type=explode(';',trim(strtolower($_SERVER['CONTENT_TYPE'])));
-				$mediaType=$content_type[0];	
-			}
-	
-			if ($_SERVER['REQUEST_METHOD']==$type && $mediaType=='application/json') {
-				if($type==self::METHOD_QUERY){
-					$request=$_GET;
-				}
-				else{
-					// Correspondence in case of json format.
-					$request = json_decode(file_get_contents('php://input'), true);
-				}
-			}
-			else{
-				if($type==self::METHOD_QUERY){
-					$request=$_GET;
-				}
-				else if($type==self::METHOD_POST){
-					$request=$_POST;
-				}
-				else{
-					$request=file_get_contents('php://input');
-				}
-			}
-	
-			self::$_request[$type]=$request;	
-		}
-
+	public function delete($name = null){
 		if($name){
-
-			$names=explode(".",$name);
-
-			$buff=self::$_request[$type];
-
-			foreach($names as $n_){
-				if(isset($buff[$n_])){
-					$buff=$buff[$n_];
-				}
-				else{
-					$buff=null;
-				}
-			}
-
-			return $buff;
+			return Request::deleteData($this->type, $name);
 		}
-
-		return self::$_request[$type];	
-	}
-
-	/**
-	 * exists
-	 * @param $type
-	 * @param $name = null
-	 */
-	public static function exists($type,$name=null){
-		if(self::get($type,$name)){
-			return true;
+		else{
+			return Request::deleteData($this->type);
 		}
-		return false;
-	}
-
-	/**
-	 * set
-	 * @param $type
-	 * @param $values
-	 */
-	public static function set($type,$values){
-
-		if(!isset(self::$_request[$type])){
-			self::get($type);
-		}
-
-		foreach($values as $key=>$val){
-			self::$_request[$type][$key]=$val;
-		}
-
-	}
-
-	/**
-	 * delete
-	 * @param $type
-	 * @param $values
-	 */
-	public static function delete($type,$values){
-		
-		if(!isset(self::$_request[$type])){
-			self::get($type);
-		}
-
-		foreach($values as $colum){
-			unset(self::$_request[$type][$colum]);
-		}
-
 	}
 }

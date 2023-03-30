@@ -15,6 +15,4 @@
 
 namespace Reald\Core;
 
-class Middleware extends CoreBlock{
-
-}
+class Middleware{}

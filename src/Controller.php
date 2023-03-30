@@ -15,7 +15,7 @@
 
 namespace Reald\Core;
 
-class Controller extends CoreBlock{
+class Controller{
 
 	public $view = null;
 	public $template = null;

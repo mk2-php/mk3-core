@@ -55,9 +55,6 @@ class Startor{
 			// config data loading..
 			$this->loadConfig();
 
-			// load kernel Script (Version2)
-			$this->loadKernelV2();
-
 			// use class load.
 			$this->useClass();
 
@@ -84,25 +81,10 @@ class Startor{
 		require "construct.php";
 		require "Debug.php";
 		require "Config.php";
-		require "CoreBlock.php";
 		require "Routing.php";
 		require "RequestRouting.php";
 	}
 	
-	/**
-	 * loadKernelV2
-	 */
-	private function loadKernelV2(){
-
-		if(Config::exists("config.coreBlock.useRequest")){
-			require "Request.php";
-		}
-		if(Config::exists("config.coreBlock.useResponse")){
-			require "Response.php";
-		}
-
-	}
-
 	/**
 	 * loadConfig
 	 */

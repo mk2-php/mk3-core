@@ -15,4 +15,4 @@
 
 namespace Reald\Core;
 
-class Shell extends CoreBlock{}
+class Shell{}
