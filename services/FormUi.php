@@ -153,6 +153,23 @@ class FormUi{
 	}
 
 	/**
+	 * password
+	 * @param String $name
+	 * @param Array $option
+     * @return String tag output
+	 */
+	public function password($name, $option = null){
+
+		if(!$option){
+			$option = [];
+		}
+
+		$option["type"] = "password";
+
+		return $this->input($name,$option);
+	}
+
+	/**
 	 * textarea
 	 * @param String $name
 	 * @param Array $option  =  null
@@ -258,9 +275,12 @@ class FormUi{
 	 * radio
 	 * @param $name
 	 * @param $radio
-	 * @param $option  =  null
+	 * @param $option
+	 * @param $labelOption
+	 * @param $divStrStart
+	 * @param $divStrEnd
 	 */
-	public function radio($name,$radio,$option = null){
+	public function radio($name, $radio, $option = null, $labelOption = null, $divStrStart = null, $divStrEnd = null){
 
 		$option["name"] = $this->_convertName($name);
 
@@ -295,9 +315,24 @@ class FormUi{
 				}	
 			}
 
-			$str .= $this->input($name,$radioOpt);
+			if($option){
+				foreach($option as $key => $o_){
+					$radioOpt[$key] = $o_;
+				}	
+			}
 
-			$str .= '<label for = "'.$radioId.'">'.$val.'</label>';
+			$buffStr = $this->input($name, $radioOpt);
+
+			$labelStr = $this->_convertOptionString($labelOption);
+
+			$buffStr .= '<label for = "'.$radioId.'" ' . $labelStr . '>'.$val.'</label>';
+
+			if($divStrStart && $divStrEnd){
+				$str .= $divStrStart. $buffStr . $divStrEnd;
+			}
+			else{
+				$str .= $buffStr;
+			}
 
 			$ind++;
 		}
@@ -357,9 +392,12 @@ class FormUi{
 	 * checkbox
 	 * @param $name
 	 * @param $checkbox
-	 * @param $option  =  null
+	 * @param $option
+	 * @param $labelOption
+	 * @param $divStrStart
+	 * @param $divStrEnd
 	 */
-	public function checkbox($name,$checkbox,$option = null){
+	public function checkbox($name, $checkbox, $option = null, $labelOption = null, $divStrStart = null, $divStrEnd = null){
 
 		if(!is_array($checkbox)){
 			$checkbox = [$checkbox => ""];
@@ -406,9 +444,24 @@ class FormUi{
 				}
 			}
 
-			$str .= $this->input($name,$checkboxOpt);
+			if($option){
+				foreach($option as $key => $o_){
+					$checkboxOpt[$key] = $o_;
+				}	
+			}
 
-			$str .= '<label for = "'.$checkboxId.'">'.$val.'</label>';
+			$buffStr = $this->input($name, $checkboxOpt);
+
+			$labelStr = $this->_convertOptionString($labelOption);
+			
+			$buffStr .= '<label for = "'.$checkboxId.'" '. $labelStr. '>'.$val.'</label>';
+
+			if($divStrStart && $divStrEnd){
+				$str .= $divStrStart. $buffStr . $divStrEnd;
+			}
+			else{
+				$str .= $buffStr;
+			}
 
 			$ind++;
 		}
@@ -489,7 +542,9 @@ class FormUi{
 				$verror = join("<br>", $verror);
 			}
 
-			$str = '<div class="error">';
+			$optStr = $this->_convertOptionString($option);
+
+			$str = '<div class="error" ' . $optStr .'>';
 			
 			if(!empty($option["allOutput"])){
 				foreach($verror as $ind => $v_){
@@ -624,7 +679,7 @@ class FormUi{
 		$getData = null;
         
 		if(strtoupper($this->methodMode) == Request::METHOD_QUERY){
-			$getData = Request::get()->all();
+			$getData = Request::query()->all();
 		}
 		else if(strtoupper($this->methodMode) == Request::METHOD_POST){
 			$getData = Request::post()->all();

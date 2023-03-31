@@ -345,7 +345,7 @@ class Response{
 	 * @param Array $sendViewData
 	 * @param boolean $outputBufferd
 	 */
-	public function parentViewPart($viewPartName, $sendViewData = null, $outputBufferd = false){
+	public static function parentViewPart($viewPartName, $sendViewData = null, $outputBufferd = false){
 
 		$viewPartPath = RLD_PATH_RENDERING_VIEWPART . "/" . $viewPartName . RLD_VIEW_EXTENSION;
 		$viewPartPath = str_replace("\\","/",$viewPartPath);
