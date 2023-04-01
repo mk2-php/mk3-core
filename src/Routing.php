@@ -40,6 +40,23 @@ class Routing{
 	}
 
 	/**
+	 * searchChangeUrl
+	 * 
+	 */
+	public function searchChangeUrl($url){
+
+		$routingList=$this->convertRouting(self::TYPE_PAGES);
+
+		$rootParams = Request::params();
+		$rootParams["root"] = $url;
+		$rootParams["path"] = $rootParams["phpSelf"] . $url;
+
+		$response = $this->searchRouting(self::TYPE_PAGES, $rootParams,$routingList);
+
+		return $response;
+	}
+
+	/**
 	 * searchCmd
 	 * @param string $commandLine
 	 */

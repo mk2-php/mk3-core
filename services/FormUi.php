@@ -170,6 +170,40 @@ class FormUi{
 	}
 
 	/**
+	 * number
+	 * @param String $name
+	 * @param Array $option
+     * @return String tag output
+	 */
+	public function number($name, $option = null){
+
+		if(!$option){
+			$option = [];
+		}
+
+		$option["type"] = "number";
+
+		return $this->input($name,$option);
+	}
+
+	/**
+	 * date
+	 * @param String $name
+	 * @param Array $option
+     * @return String tag output
+	 */
+	public function date($name, $option = null){
+
+		if(!$option){
+			$option = [];
+		}
+
+		$option["type"] = "date";
+
+		return $this->input($name,$option);
+	}
+
+	/**
 	 * textarea
 	 * @param String $name
 	 * @param Array $option  =  null

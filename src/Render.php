@@ -26,11 +26,13 @@ class Render{
 		if(!empty($context->view)){
 			$this->view = $context->view;
 			Response::$view = $context->view;
+			Response::$viewParent = null;
 		}
 		
 		if(!empty($context->viewParent)){
 			$this->viewParent = $context->viewParent;
 			Response::$viewParent = $context->viewParent;
+			Response::$view = null;
 		}
 		if(!empty($context->template)){
 			$this->template = $context->template;
@@ -39,7 +41,6 @@ class Render{
 			$this->templateParent = $context->templateParent;
 		}
 		
-
 		if(!empty($this->templateParent)){
 			Response::parentTemplate($context->templateParent);
 		}

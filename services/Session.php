@@ -2,7 +2,7 @@
 
 namespace Reald\Services;
 
-use Reald\Encrypt\Encrypt;
+use Reald\Services\Encrypt;
 
 class Session{
 

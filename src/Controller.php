@@ -21,6 +21,17 @@ class Controller{
 	public $template = null;
 	public $autoRender = false;
 
+	public function __construct(){
+
+		if(empty($this->view)){
+			if(
+				!empty(RequestRouting::$_params["controller"]) && 
+				!empty(RequestRouting::$_params["action"])){	
+					$this->view = RequestRouting::$_params["controller"]. "/". RequestRouting::$_params["action"];
+			}
+		}
+	}
+
 	/**
 	 * setAutoRender
 	 * @param $templateName 
@@ -54,11 +65,13 @@ class Controller{
 	 */
 	public function setView($view){
 		$this->view = $view;
+		$this->viewParent = null;
 		return $this;
 	}
 
 	public function setViewParent($view){
 		$this->viewParent =$view;
+		$this->view = null;
 		return $this;
 	}
 
@@ -66,25 +79,6 @@ class Controller{
 	 * _rendering
 	 */
 	public function _rendering(){
-
-		if(empty($this->view)){
-			if(
-				!empty(RequestRouting::$_params["controller"]) && 
-				!empty(RequestRouting::$_params["action"])){	
-					$this->view = RequestRouting::$_params["controller"]. "/". RequestRouting::$_params["action"];
-			}
-		/*
-			if(!empty(RequestRouting::$_params["module"])){
-				$_view = "modules/". 
-					lcfirst(RequestRouting::$_params["module"]) . "/" . 
-					RLD_PATH_NAME_RENDERING . "/" .
-					RLD_PATH_NAME_VIEW . 
-					substr($this->view, strlen("/modules/". lcfirst(RequestRouting::$_params["module"]).RLD_PATH_SEPARATE. RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_CONTROLLER));
-
-				$this->view = $_view;
-			}
-		*/
-		}
 
 		$useClass=Config::get("config.useClass");
 

@@ -2,4 +2,8 @@
 
 namespace Reald\Core;
 
-class Hook{}
+class Hook{
+
+    public $containerPath;
+
+}

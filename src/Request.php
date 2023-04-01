@@ -100,7 +100,7 @@ class Request{
 		if(!isset(self::$_request[$type])){
 			return;
 		}
-
+		
 		if($name){
 
 			if(!isset(self::$_request[$type][$name])){

@@ -178,12 +178,12 @@ class Response{
 		if(isset($params["controller"]) && isset($params["action"])){
 			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". $params["controller"] . "/". $params["action"] . RLD_VIEW_EXTENSION;
 		}
-		
+
 		if(!empty(self::$view)){
 			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". self::$view . RLD_VIEW_EXTENSION;
 		}
 		if(!empty(self::$viewParent)){
-			$viewPath = $params["paths"]["rendering"] . "/" .RLD_PATH_NAME_VIEW. "/". self::$viewParent . RLD_VIEW_EXTENSION;
+			$viewPath = RLD_PATH_RENDERING_VIEW . "/". self::$viewParent . RLD_VIEW_EXTENSION;
 		}
 
 		if(!$viewPath){
@@ -364,6 +364,30 @@ class Response{
 	}
 
 	/**
+	 * viewPartOnContainer
+	 * @param string $viewPartName
+	 * @param Array $sendViewData
+	 * @param boolean $outputBufferd
+	 */
+	public static function viewPartOnContainer($containerName, $viewPartName, $sendViewData = null, $outputBufferd = false){
+		
+		$viewPartPath = RLD_ROOT . "/" . RLD_CONTAINER . "/" . $containerName . "/" . 
+			RLD_PATH_NAME_RENDERING . "/" . RLD_PATH_NAME_VIEWPART . "/" . $viewPartName . RLD_VIEW_EXTENSION;
+		$viewPartPath = str_replace("\\","/",$viewPartPath);
+
+		if(!file_exists($viewPartPath)){
+			echo "<pre>[ViewPartError] ViewPart file not found. \n Path : '".$viewPartPath."'\n</pre>";
+			return;
+		}
+
+		if($sendViewData){
+			self::sendData($sendViewData);
+		}
+
+		return self::_viewPart($viewPartPath, $outputBufferd);
+	}
+
+	/**
 	 * _viewPart
 	 * @param string $viewPartName
 	 * @param boolean $outputBufferd
@@ -395,6 +419,7 @@ class Response{
 
 		$getContainer = glob($containerPath);
 
+		$hookRes = [];
 		foreach($getContainer as $gc_){
 
 			$hookPath = $gc_ . RLD_PATH_SEPARATE . RLD_DEFNS . RLD_PATH_SEPARATE . RLD_PATH_NAME_HOOK . RLD_PATH_SEPARATE . ucfirst($hookName) . RLD_PATH_NAME_HOOK . ".php";
@@ -403,7 +428,7 @@ class Response{
 				continue;
 			}
 
-			require $hookPath;
+			require_once $hookPath;
 
 			$hookClassName = RLD_PATH_SEPARATE_NAMESPACE. str_replace(RLD_PATH_SEPARATE, RLD_PATH_SEPARATE_NAMESPACE, str_replace(RLD_ROOT . RLD_PATH_SEPARATE, "", $gc_)) . RLD_PATH_SEPARATE_NAMESPACE . RLD_DEFNS . RLD_PATH_SEPARATE_NAMESPACE . RLD_PATH_NAME_HOOK . RLD_PATH_SEPARATE_NAMESPACE . ucfirst($hookName) . RLD_PATH_NAME_HOOK;
 
@@ -413,19 +438,37 @@ class Response{
 
 			$hook = new $hookClassName();
 
+			$hook->containerPath = $gc_ . RLD_PATH_SEPARATE;
+
 			if(!method_exists($hook, $hookMethod)){
 				continue;
 			}
 
 			if($aregments){
-				$hookRes = $hook->{$hookMethod}(...$aregments);
+				$hookRes[] = $hook->{$hookMethod}(...$aregments);
 			}
 			else{
-				$hookRes = $hook->{$hookMethod}();
+				$hookRes[] = $hook->{$hookMethod}();
 			}
-
-			return $hookRes;
 		}
+
+		return $hookRes;
+	}
+
+	/**
+	 * alias
+	 * 
+	 * @param String $url
+	 */
+	public static function alias($url){
+
+		$routing = new Routing;
+
+        $res = $routing->searchChangeUrl($url);
+
+		RequestRouting::$_params = $res;
+
+        new Startor(true);
 	}
 
 	/**

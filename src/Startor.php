@@ -45,21 +45,26 @@ class Startor{
 	/**
 	 * __construct
 	 */
-	public function __construct(){
+	public function __construct($aliasFlg = false){
 
 		try{
 
-			// load kernel Script (Version1)
-			$this->loadKernelV1();
-			
-			// config data loading..
-			$this->loadConfig();
+			if(!$aliasFlg){
+				// load kernel Script (Version1)
+				$this->loadKernelV1();
+				
+				// config data loading..
+				$this->loadConfig();
 
-			// use class load.
-			$this->useClass();
+				// use class load.
+				$this->useClass();
 
-			// set routing
-			$this->setRouting();
+				// set routing
+				$this->setRouting();
+			}
+			else{
+				$this->routeParam = RequestRouting::$_params;
+			}
 
 			// set Controller/Shell
 			$this->setControllerOrShell();
