@@ -4,6 +4,11 @@ namespace Reald\Services;
 
 class Encrypt{
 
+	public const MODE_SERIALIZE = 1;
+	public const MODE_JSON = 1;
+
+	public $mode = self::MODE_SERIALIZE;
+
 	public $encAlgolizum = "aes-256-cbc";
 	public $encSalt = "ABCDEFG123456**************************";
 	public $encPassword = "password123456789******************";
@@ -12,6 +17,7 @@ class Encrypt{
 	public $hashSalt = "123456789ABC*****************";
 	public $hashStretch = 5;
 
+
 	/**
 	 * encode
 	 * @param any $data
@@ -19,9 +25,7 @@ class Encrypt{
 	 */
 	public function encode($data, $option = null){
 
-		if(is_array($data)){
-			$data = json_encode($data);
-		}
+		$data = $this->_convert_encode($data);
 
 		$option = $this->_setOption($option);
 
@@ -45,9 +49,7 @@ class Encrypt{
 	 */
 	public function encAuto($data){
 
-		if(is_array($data)){
-			$data = json_encode($data);
-		}
+		$data = $this->_convert_encode($data);
 
 		$option = $this->_setOption();
 
@@ -85,14 +87,8 @@ class Encrypt{
 		//decode
 		$decrypted = openssl_decrypt($data, $option["encAlgolizum"], $option["encPassword"], $options, $iv);
 
-		if(is_array(json_decode($decrypted,true))){
-			$output = json_decode($decrypted,true);
-		}
-		else
-		{
-			$output = $decrypted;
-		}
-
+		$output = $this->_convert_decode($decrypted);
+		
 		return $output;
 	}
 
@@ -118,7 +114,7 @@ class Encrypt{
 			$stretch = $option["stretch"];
 		}
 
-		$hash = json_encode($data);
+		$hash = $this->_convert_encode($data);
 
 		for($n = 0 ; $n < $stretch ; $n++){
 			$hash = hash($algolizum,$hash.$salt);
@@ -145,5 +141,39 @@ class Encrypt{
 		}
 
 		return $option;
+	}
+
+	/**
+	 * _convert_encode
+	 * @param any $data;
+	 * @return $res
+	 */
+	private function _convert_encode($data){
+
+		if($this->mode == self::MODE_SERIALIZE){
+			$res = serialize($data);
+		}
+		else if($this->mode == self::MODE_JSON){
+			$res = json_encode($data);
+		}
+
+		return $res;
+	}
+
+	/**
+	 * _convert_decode
+	 * @param any $data;
+	 * @return $res
+	 */
+	private function _convert_decode($data){
+
+		if($this->mode == self::MODE_SERIALIZE){
+			$res = unserialize($data);
+		}
+		else if($this->mode == self::MODE_JSON){
+			$res = json_decode($data, true);
+		}
+
+		return $res;
 	}
 }

@@ -140,7 +140,7 @@ class FormUi{
 	 * @param Array $option input tag attribute options.
      * @return String tag output
 	 */
-	public function hidden($name,$value,$option = null){
+	public function hidden($name, $value, $option = null){
 
 		if(!$option){
 			$option = [];
@@ -149,7 +149,7 @@ class FormUi{
 		$option["type"] = "hidden";
 		$option["value"] = $value;
 
-		return $this->input($name,$option);
+		return $this->input($name, $option);
 	}
 
 	/**
@@ -431,7 +431,11 @@ class FormUi{
 	 * @param $divStrStart
 	 * @param $divStrEnd
 	 */
-	public function checkbox($name, $checkbox, $option = null, $labelOption = null, $divStrStart = null, $divStrEnd = null){
+	public function checkbox($name, $checkbox = null, $option = null, $labelOption = null, $divStrStart = null, $divStrEnd = null){
+
+		if(!$checkbox){
+			$checkbox = 1;
+		}
 
 		if(!is_array($checkbox)){
 			$checkbox = [$checkbox => ""];
@@ -663,7 +667,7 @@ class FormUi{
 
 		$str = "";
 		foreach($option as $key => $val){
-			$str .= ' '.$key.' = "'.$val.'"';
+			$str .= ' '.$key.' = \''.$val.'\'';
 		}
 
 		return $str;

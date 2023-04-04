@@ -2,12 +2,12 @@
 
 namespace Reald\Services;
 
-use Reald\Services\Encrypt;
-
 class Session{
 
 	private $Encrypt;
 	
+	public $encryptClass = "Reald\Services\Encrypt";
+
     //Ex. RLD_PATH_APP_TEMPORARY."session";
 	public $tmpPath = null;
 
@@ -39,7 +39,7 @@ class Session{
 	 */
 	public function __construct(){
 
-        $this->Encrypt = new Encrypt;
+        $this->Encrypt = new $this->encryptClass;
 
 		if(!empty($this->tmpPath)){
 			if(!is_dir($this->tmpPath)){
@@ -61,7 +61,7 @@ class Session{
 	 */
 	public function write($name,$value){
 
-		$source=$this->read();
+		$source = $this->read();
 
 		if($name){
 			$source[$name] = $value;
