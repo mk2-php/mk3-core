@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ===================================================
  * 
@@ -22,8 +23,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */
-	public function text($output,$inline=false){
-		echo $this->_out($output,null,$inline);
+	public static function text($output,$inline=false){
+		echo self::_out($output,null,$inline);
 		return $this;
 	}
 
@@ -32,8 +33,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */
-	public function blue($output,$inline=false){
-		echo $this->_out($output,'0;34',$inline);
+	public static function function blue($output,$inline=false){
+		echo self::_out($output,'0;34',$inline);
 		return $this;
 	}
 
@@ -42,8 +43,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */
-	public function green($output,$inline=false){
-		echo $this->_out($output,'0;32',$inline);
+	public static function green($output,$inline=false){
+		echo self::_out($output,'0;32',$inline);
 		return $this;
 	}
 
@@ -52,8 +53,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */
-	public function cyan($output,$inline=false){
-		echo $this->_out($output,'0;36',$inline);
+	public static function cyan($output,$inline=false){
+		echo self::_out($output,'0;36',$inline);
 		return $this;
 	}
 
@@ -62,8 +63,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */	
-	public function red($output,$inline=false){
-		echo $this->_out($output,'0;31',$inline);
+	public static function red($output,$inline=false){
+		echo self::_out($output,'0;31',$inline);
 		return $this;
 	}
 
@@ -72,8 +73,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */		
-	public function purple($output,$inline=false){
-		echo $this->_out($output,'0;35',$inline);
+	public static function purple($output,$inline=false){
+		echo self::_out($output,'0;35',$inline);
 		return $this;
 	}
 
@@ -82,8 +83,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */		
-	public function brown($output,$inline=false){
-		echo $this->_out($output,'0;33',$inline);
+	public static function brown($output,$inline=false){
+		echo self::_out($output,'0;33',$inline);
 		return $this;
 	}
 
@@ -92,8 +93,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */
-	public function lightGray($output,$inline=false){
-		echo $this->_out($output,'0;37',$inline);
+	public static function lightGray($output,$inline=false){
+		echo self::_out($output,'0;37',$inline);
 		return $this;
 	}
 
@@ -102,8 +103,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */
-	public function darkGray($output,$inline=false){
-		echo $this->_out($output,'1;30',$inline);
+	public static function darkGray($output,$inline=false){
+		echo self::_out($output,'1;30',$inline);
 		return $this;
 	}
 
@@ -112,8 +113,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */	
-	public function lightBlue($output,$inline=false){
-		echo $this->_out($output,'1;34',$inline);
+	public static function lightBlue($output,$inline=false){
+		echo self::_out($output,'1;34',$inline);
 		return $this;
 	}
 
@@ -122,8 +123,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */	
-	public function lightGreen($output,$inline=false){
-		echo $this->_out($output,'1;32',$inline);
+	public static function lightGreen($output,$inline=false){
+		echo self::_out($output,'1;32',$inline);
 		return $this;
 	}
 
@@ -132,8 +133,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */	
-	public function lightCyan($output,$inline=false){
-		echo $this->_out($output,'1;36',$inline);
+	public static function lightCyan($output,$inline=false){
+		echo self::_out($output,'1;36',$inline);
 		return $this;
 	}
 
@@ -142,8 +143,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */	
-	public function lightRed($output,$inline=false){
-		echo $this->_out($output,'1;31',$inline);
+	public static function lightRed($output,$inline=false){
+		echo self::_out($output,'1;31',$inline);
 		return $this;
 	}
 
@@ -152,8 +153,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */	
-	public function lightPurple($output,$inline=false){
-		echo $this->_out($output,'1;35',$inline);
+	public static function lightPurple($output,$inline=false){
+		echo self::_out($output,'1;35',$inline);
 		return $this;
 	}
 
@@ -162,8 +163,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */	
-	public function yellow($output,$inline=false){
-		echo $this->_out($output,'1;33',$inline);
+	public static function yellow($output,$inline=false){
+		echo self::_out($output,'1;33',$inline);
 		return $this;
 	}
 
@@ -172,8 +173,8 @@ class Command{
 	 * @param $output outpuut text
 	 * @param $inline = false inline flg
 	 */	
-	public function white($output,$inline=false){
-		echo $this->_out($output,'1;37',$inline);
+	public static function white($output,$inline=false){
+		echo self::_out($output,'1;37',$inline);
 		return $this;
 	}
 
@@ -183,15 +184,15 @@ class Command{
 	 * @param $color color pallete
 	 * @param $inline inline flg
 	 */	
-	private function _out($output,$color=null,$inline){
+	private static function _out($output,$color=null,$inline){
 
-		$str=$output;
+		$str = $output;
 		if($color){
-			$str="\033[".$color."m".$output."\033[0m";
+			$str = "\033[".$color."m".$output."\033[0m";
 		}
 
 		if(!$inline){
-			$str.="\n";
+			$str .= "\n";
 		}
 		return $str;
 	}
@@ -201,7 +202,7 @@ class Command{
 	 * @param $output outpuut text
 	 * @return input text
 	 */	
-	public function input($output){
+	public static function input($output){
 		echo $output." : ";
 		return trim(fgets(STDIN));
 	}

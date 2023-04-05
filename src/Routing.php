@@ -207,6 +207,8 @@ class Routing{
 				$action = null;
 
 				$container = null;
+				$containerType = null;
+
 				if(!empty($parentRoute["container"])){
 					$container = $parentRoute["container"];
 				}
@@ -251,6 +253,12 @@ class Routing{
 							$controller = $rpp_[1];
 						}
 					}
+
+					if($container){
+						if($rpp_[0] == "type"){
+							$containerType = $rpp_[1];
+						}
+					}
 				}
 
 				$buffer = [];
@@ -263,6 +271,7 @@ class Routing{
 				}
 				$buffer["action"] = $action;
 				$buffer["container"] = $container;
+				$buffer["container_type"] = $containerType;
 				$buffer["middleware"] = $middleware;
 
 				if($container){
@@ -302,15 +311,8 @@ class Routing{
 					continue;
 				}
 
-				if($type == self::TYPE_SHELL){
-					$mode = "shell";
-				}
-				else if($type == self::TYPE_PAGES){
-					$mode = "pages";
-				}
+				$containerRoutingFilePath = RLD_ROOT . RLD_PATH_SEPARATE . RLD_CONTAINER . RLD_PATH_SEPARATE . $rp_["container"] . RLD_PATH_SEPARATE . RLD_PATH_NAME_CONFIG . RLD_PATH_SEPARATE . "routing_" . $rp_["container_type"] . ".php";
 
-				$containerRoutingFilePath = RLD_ROOT . RLD_PATH_SEPARATE . RLD_CONTAINER . RLD_PATH_SEPARATE . $rp_["container"] . RLD_PATH_SEPARATE . RLD_PATH_NAME_CONFIG . RLD_PATH_SEPARATE . "routing_". $mode .".php";
-		
 				if(!file_exists($containerRoutingFilePath)){
 					continue;
 				}

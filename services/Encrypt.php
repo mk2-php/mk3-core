@@ -17,7 +17,6 @@ class Encrypt{
 	public $hashSalt = "123456789ABC*****************";
 	public $hashStretch = 5;
 
-
 	/**
 	 * encode
 	 * @param any $data
@@ -97,7 +96,7 @@ class Encrypt{
 	 * @param any $data
 	 * @param Array $option
 	 */
-	public function hash($data,$option = null){
+	public function hash($data, $option = null){
 
 		$algolizum = $this->hashAlgolizum;
 		if(!empty($option["algolizum"])){
@@ -143,6 +142,23 @@ class Encrypt{
 		return $option;
 	}
 
+	public function token($option = null){
+
+		$uniqId = uniqId();
+
+		$tokenA = $this->hash($uniqId, $option);
+		$tokenB = $this->hash($tokenB, $option);
+
+		return $tokenA . $tokenB;
+	}
+
+	public function checkToken($token, $option = null){
+
+		
+
+
+	}
+
 	/**
 	 * _convert_encode
 	 * @param any $data;
@@ -176,4 +192,5 @@ class Encrypt{
 
 		return $res;
 	}
+
 }

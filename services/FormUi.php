@@ -204,6 +204,23 @@ class FormUi{
 	}
 
 	/**
+	 * color
+	 * @param String $name
+	 * @param Array $option
+     * @return String tag output
+	 */
+	public function color($name, $option = null){
+
+		if(!$option){
+			$option = [];
+		}
+
+		$option["type"] = "color";
+
+		return $this->input($name,$option);
+	}
+
+	/**
 	 * textarea
 	 * @param String $name
 	 * @param Array $option  =  null
