@@ -459,7 +459,9 @@ class FormUi{
 		}
 
 		$searchName = $this->_convertName($name);
-		$name = $this->_convertName($name)."[]";
+		if(empty($option["onecheck"])){
+			$name = $this->_convertName($name)."[]";
+		}
 
 		$value = null;
 		if(isset($option["value"])){
@@ -523,6 +525,26 @@ class FormUi{
 
 		return $str;
 
+	}
+
+	/**
+	 * checkboxOne
+	 * @param $name
+	 * @param $checkbox
+	 * @param $option
+	 * @param $labelOption
+	 * @param $divStrStart
+	 * @param $divStrEnd
+	 */
+	public function checkboxOne($name,  $checkbox = null, $option = null, $labelOption = null, $divStrStart = null, $divStrEnd = null){
+
+		if(!$option){
+			$option = [];
+		}
+
+		$option["onecheck"] = true;
+
+		return $this->checkbox($name, $checkbox, $option, $labelOption, $divStrStart, $divStrEnd);
 	}
 
 	/**
